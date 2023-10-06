@@ -157,8 +157,4 @@ If you find our resources helpful, please cite the following manuscript:
 
 
 ### License
-<<<<<<< HEAD
 This work is licensed under the [CC BY-NC-ND 4.0 DEED](https://creativecommons.org/licenses/by-nc-nd/4.0/).
-=======
-This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
->>>>>>> origin/main
