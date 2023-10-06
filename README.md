@@ -129,7 +129,7 @@ For any questions, please raise an issue on GitHub (recommended) or email us. We
 
 1. **How Can Z-Scores Be Calculated Using a Downloaded GWAS Summary Statistics File?**
 
-   We offer a script called `APSS.R` designed to preprocess the GWAS summary statistics file. If the file includes both the effect size (BETA) and standard error (SE), you can calculate the Z-score using the formula BETASESEBETA. Should the file provide odds ratios, the effect size can be determined by taking the natural logarithm of the odds ratio. Additionally, our primary script `BLISS_Association.R` incorporates these calculations to ensure smooth execution of the analysis.
+   We offer a script called `APSS.R` designed to preprocess the GWAS summary statistics file. If the file includes both the effect size (BETA) and standard error (SE), you can calculate the Z-score using the formula $Z = BETA/SE$. Should the file provide odds ratios, the effect size can be determined by taking the natural logarithm of the odds ratio. Additionally, our primary script `BLISS_Association.R` incorporates these calculations to ensure smooth execution of the analysis.
 
 2. **How to deal with the error message: Currently, we provide the following models: ARIC, ARIC_AA, deCODE, UKB, UKB_AFR_std, UKB_AFR_super, UKB_ASN_std, UKB_ASN_super. Please specify your choice for weights_models by selecting one of these available options"**
 
