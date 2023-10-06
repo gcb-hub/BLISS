@@ -1,6 +1,6 @@
 # BLISS
 
-We introduced **Biomarker expression Level Imputation using Summary-level Statistics (BLISS)**, a novel method designed for developing protein imputation models using summary-level pQTL data. This software is to support our [gcb-hub][] (see figure below) and creating large-scale imputations models for multi-ancestry proteome-wide association analysis. 
+We introduced **Biomarker expression Level Imputation using Summary-level Statistics (BLISS)**, a novel method designed for developing protein imputation models using summary-level pQTL data. This software is to support our [gcb-hub](http://www.gcbhub.org) (see figure below) and creating large-scale imputations models for multi-ancestry proteome-wide association analysis. 
 
 ![BLISS_illustration](/Users/cwu18/Dropbox/MDACC_research/Undergoing/PWAS-cis/BLISS-software/BLISS/BLISS_illustration.png)
 
@@ -11,12 +11,12 @@ We introduced **Biomarker expression Level Imputation using Summary-level Statis
 There are two ways to install BLISS:
 
 ### Option 1: Stable Release. 
-Download the stable version (V1.0) of BLISS, along with all related data, from gcb-hub.
+Download the stable version (V1.0) of BLISS, along with all related data, from gcb-hub eith using this [link](https://gcbhub.s3.us-east-2.amazonaws.com/BLISS.zip) or
 
 ```
-wget https://github.com/gusevlab/fusion_twas/archive/master.zip
-unzip master.zip
-cd fusion_twas-master
+wget -c https://gcbhub.s3.us-east-2.amazonaws.com/BLISS.zip
+unzip BLISS.zip
+cd BLISS
 ```
 
 ### Option 2: Latest Release
@@ -24,9 +24,7 @@ cd fusion_twas-master
 For the most up-to-date version of BLISS, you can download and unpack the repository from this GitHub page, then put the updated codes into the BLISS directory:
 
 ```
-wget https://github.com/gusevlab/fusion_twas/archive/master.zip
-unzip master.zip
-cd fusion_twas-master
+wget https://github.com/gcb-hub/BLISS/archive/refs/heads/main.zip
 ```
 
 
@@ -65,7 +63,7 @@ We also strongly recommend including one optional column:
 
 As an example, we offer stroke GWAS summary data from the GBMI, limited to chromosome 22 for illustration purposes. The full dataset can be downloaded from the [GBMI Resources Page][https://www.globalbiobankmeta.org/resources].
 
-**Recommendation:** We strongly advise using our interactive quality control tool (`APSS.R`) or other qc tools before running `BLISS_Association.R`. While our software is designed for robustness, automatically calculating Z-scores and adopting common column names for chromosome, SNP, Z, and N, we intentionally leave the A1 and A2 columns unchecked. This emphasizes the critical need to accurately specify the effective allele (A1) and the other allele (A2) for reliable results.
+**Recommendation:** We strongly advise using our interactive quality control tool (`APSS.R`) or other qc tools before running `BLISS_Association.R`. While our software is designed for robustness, automatically calculating Z-scores and adopting common column names for chromosome, SNP, Z, and N, we intentionally leave the A1 and A2 columns unchecked. This emphasizes the critical need to accurately specify the effective allele (A2) and the other allele (A1) for reliable results.
 
 **Note:** Similar to TWAS, our approach requires comprehensive summary-level data without significance thresholding (i.e., raw, quality-controlled GWAS data). This ensures that most SNPs used for protein expression prediction are present in the GWAS summary statistics. 
 
@@ -159,4 +157,4 @@ If you find our resources helpful, please cite the following manuscript:
 
 
 ### License
-This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This work is licensed under the [CC BY-NC-ND 4.0 DEED](https://creativecommons.org/licenses/by-nc-nd/4.0/).
