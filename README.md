@@ -70,7 +70,7 @@ As an example, we offer [processed stroke GWAS summary data from the GBMI](https
 
 ### Identifying protein-trait associations
 
-To identify protein-trait associations, execute the BLISS.test.R script using data for chromosome 22 as shown below:
+To identify protein-trait associations, execute the `BLISS_Association.R` script using data for chromosome 22 as shown below:
 
 ```
 Rscript BLISS_Association.R \
@@ -99,8 +99,9 @@ Here are the revised parameters for `BLISS_Association.R`:
 | --output_dir     | results/                       | Directory for storing the output files                       |
 | --output_name    | stroke_res_CHR22.txt           | Name of the output file                                      |
 
+
 ### Output: Protein-trait association
-Here’s how to interpret the results in stroke_res_CHR22.txt. The table below displays the first two lines of the output file, transposed for explanation:
+Here’s how to interpret the results in `stroke_res_CHR22.txt`. The table below displays the first two lines of the output file, transposed for explanation:
 
 | Column        | Value    | Explain                                                      |
 | ------------- | -------- | ------------------------------------------------------------ |
