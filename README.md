@@ -60,7 +60,6 @@ GWAS summary statistics must be formatted as a flat file with the following mand
 We also strongly recommend including one optional column:
 
 6. N - sample size, which is often the discovery stage sample size, not maximum sample size
-
 As an example, we offer [stroke GWAS summary data from the GBMI](https://www.dropbox.com/scl/fi/yeh0g0ek6vis9suhonjfg/Stroke_eur_GBMI_CHR22.sumstats?rlkey=9wsxglhz5chasy2lowvlb2rjy&dl=0), limited to chromosome 22 for illustration purposes. The full dataset can be downloaded from the [GBMI Resources Page](https://www.globalbiobankmeta.org/resources).
 
 **Recommendation:** We strongly advise using our interactive quality control tool (`APSS.R`) or other qc tools before running `BLISS_Association.R`. While our software is designed for robustness, automatically calculating Z-scores and adopting common column names for chromosome, SNP, Z, and N, we intentionally leave the A1 and A2 columns unchecked. This emphasizes the critical need to accurately specify the effective allele (A2) and the other allele (A1) for reliable results.
@@ -70,13 +69,14 @@ As an example, we offer [stroke GWAS summary data from the GBMI](https://www.dro
 ### Identifying protein-trait associations
 
 To identify protein-trait associations, execute the BLISS.test.R script using data for chromosome 22 as shown below:
+
 ```
 Rscript BLISS_Association.R \
 --sumstats Stroke_eur_GBMI_CHR22.sumstats \
---sumstats_dir BLISS-software/ \
+--sumstats_dir sum_dat/ \
 --weights_models UKB \
 --CHR 22 \
---output_dir BLISS-software/results/ \
+--output_dir results/ \
 --output_name stroke_res_CHR22.txt
 ```
 
@@ -84,6 +84,18 @@ This analysis should take approximately about five seconds to complete. Log info
 
 Internally, the script performs these tasks: (1) unify the GWAS and reference SNPs and remove/flip alleles as needed; (2) test protein-trait associations; (3) estimate the effect sizes and their standard errors; and (4) report results.
 
+### Parameters
+
+Here are the revised parameters for `BLISS_Association.R`:
+
+| Flag             | Value                          | Description                                                  |
+| ---------------- | ------------------------------ | ------------------------------------------------------------ |
+| --sumstats       | Stroke_eur_GBMI_CHR22.sumstats | The processed GWAS summary data                              |
+| --sumstats_dir   | sum_dat/                       | Directory where `sumstats` is stored                         |
+| --weights_models | UKB                            | The BLISS protein prediction models to be used (refer to the Protein Expression Imputation Models section for details) |
+| --CHR            | 22                             | Chromosome to be analyzed                                    |
+| --output_dir     | results/                       | Directory for storing the output files                       |
+| --output_name    | stroke_res_CHR22.txt           | Name of the output file                                      |
 
 ### Output: Protein-trait association
 Here’s how to interpret the results in stroke_res_CHR22.txt. The table below displays the first two lines of the output file, transposed for explanation:
