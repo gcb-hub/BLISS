@@ -62,7 +62,7 @@ We also strongly recommend including one optional column:
 6. N - sample size, which is often the discovery stage sample size, not maximum sample size
 
 
-As an example, we offer [processed stroke GWAS summary data from the GBMI](https://www.dropbox.com/scl/fi/yeh0g0ek6vis9suhonjfg/Stroke_eur_GBMI_CHR22.sumstats?rlkey=9wsxglhz5chasy2lowvlb2rjy&dl=0), limited to chromosome 22 for illustration purposes. The full raw dataset can be downloaded from the [GBMI Resources Page](https://www.globalbiobankmeta.org/resources).
+As an example, we offer [processed stroke GWAS summary data from the GBMI](https://www.dropbox.com/scl/fi/yeh0g0ek6vis9suhonjfg/Stroke_eur_GBMI_CHR22.sumstats?rlkey=9wsxglhz5chasy2lowvlb2rjy&dl=0), limited to chromosome 22 for illustration purposes. Please create a `sum_dat` folder and put the downloaded `Stroke_eur_GBMI_CHR22.sumstats` into the `sum_dat` folder. The full raw dataset can be downloaded from the [GBMI Resources Page](https://www.globalbiobankmeta.org/resources).
 
 **Recommendation:** We strongly advise using our interactive quality control tool (`APSS.R`) or other qc tools before running `BLISS_Association.R`. While our software is designed for robustness, automatically calculating Z-scores and adopting common column names for chromosome, SNP, Z, and N, we intentionally leave the A1 and A2 columns unchecked. This emphasizes the critical need to accurately specify the effective allele (A2) and the other allele (A1) for reliable results.
 
@@ -167,7 +167,7 @@ For any questions, please raise an issue on GitHub (recommended) or email us. We
 
 If you find our resources helpful, please cite the following manuscript:
 
-**Large-scale imputation models for multi-ancestry proteome-wide association analysis**, Biorxiv
+**[Large-scale imputation models for multi-ancestry proteome-wide association analysis](https://doi.org/10.1101/2023.10.05.561120)**, Biorxiv
 
 
 
