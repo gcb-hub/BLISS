@@ -64,7 +64,9 @@ We also strongly recommend including one optional column:
 
 As an example, we offer [processed stroke GWAS summary data from the GBMI](https://www.dropbox.com/scl/fi/yeh0g0ek6vis9suhonjfg/Stroke_eur_GBMI_CHR22.sumstats?rlkey=9wsxglhz5chasy2lowvlb2rjy&dl=0), limited to chromosome 22 for illustration purposes. Please create a `sum_dat` folder and put the downloaded `Stroke_eur_GBMI_CHR22.sumstats` into the `sum_dat` folder. The full raw dataset can be downloaded from the [GBMI Resources Page](https://www.globalbiobankmeta.org/resources).
 
-**Recommendation:** We strongly advise using our interactive quality control tool (`APSS.R`) or other qc tools before running `BLISS_Association.R`. While our software is designed for robustness, automatically calculating Z-scores and adopting common column names for chromosome, SNP, Z, and N, we intentionally leave the A1 and A2 columns unchecked. This emphasizes the critical need to accurately specify the effective allele (A2) and the other allele (A1) for reliable results.
+**Recommendation:** We strongly advise using our interactive quality control tool (`APSS.R`) or other qc tools before running `BLISS_Association.R`. While our software is designed for robustness, automatically calculating Z-scores and adopting common column names for chromosome, SNP, Z, and N, we intentionally leave the A1 and A2 columns unchecked. This emphasizes the critical need to accurately specify the effective allele (A2) and the other allele (A1) for reliable results. If A1 and A2 are misspecified, the effect direction will be opposite.
+
+**Note:** We use SNP (rsID) to map GWAS summary statistics, LD reference panel, and protein prediction models.
 
 **Note:** Similar to TWAS, our approach requires comprehensive summary-level data without significance thresholding (i.e., raw, quality-controlled GWAS data). This ensures that most SNPs used for protein expression prediction are present in the GWAS summary statistics. 
 
