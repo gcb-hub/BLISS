@@ -271,7 +271,7 @@ proteins = list.files(weights.dir)
 
 outres = as.data.frame(matrix(NA,7000,12))
 
-colnames(outres) = c("chr","p0","p1","gene","R2","Zscore.classic","p.classic",   "beta_alt","se_alt","p_alt","n_used_snp","n_snp")
+colnames(outres) = c("chr","p0","p1","gene","R2","Zscore.classic","p.classic",   "beta_BLISS","se_BLISS","p_BLISS","n_used_snp","n_snp")
 
 ref = ldref
 outindx = 1
