@@ -1,323 +1,414 @@
-# List of packages to install
-packages_to_install <- c("data.table", "BEDMatrix", "dplyr", "MASS","optparse")
+# Install required packages and load libraries
+package <- c("data.table", "dplyr", "optparse")
+package <- package[!(package %in% installed.packages()[, "Package"])]
 
-# Loop through each package and install if not already installed
-for (pkg in packages_to_install) {
-    if (!requireNamespace(pkg, quietly = TRUE)) {
-        install.packages(pkg)
-    }
-    library(pkg, character.only = TRUE)
+if (length(package)) {
+    suppressMessages(install.packages(package, quiet = TRUE))
 }
 
-# Get the full path of the R script
-script_path <- commandArgs(trailingOnly = FALSE)
-script_path <- script_path[grep("--file=", script_path)]
-script_path <- sub("--file=", "", script_path)
+suppressMessages(library(data.table))
+suppressMessages(library(dplyr))
+suppressMessages(library(optparse))
 
-# Extract the directory containing the R script
-script_dir <- dirname(script_path)
-
-# Set the working directory to the directory containing the R script
-setwd(script_dir)
-
-
-
-source("BLISSAssociation_Support.R")
+#################
+# Parse options #
+#################
 
 option_list <- list(
-make_option("--sumstats", type = "character", default = NA, action = "store", help = "The processed GWAS summary dataset file."
-),
-make_option("--sumstats_dir", type = "character", default = NA, action = "store", help = "The directory of GWAS summary dataset."
-),
-make_option("--N", type = "numeric", default = NA, action = "store", help = "The sample size of GWAS summary dataset. A numeric value."
-),
-make_option("--weights_models", type = "character", default = "UKB_EUR", action = "store", help = "The protein prediction models to be used."
-),
-make_option("--CHR", type = "numeric", default = NA, action = "store", help = "The chrosome to be runned. When unspecified, all chromsomes will be ran."
-),
-make_option("--output_dir", type = "character", default = getwd(), action = "store", help = "The directory of output file. Default is current directory."
-),
-make_option("--output_name", type = "character", default = "PWAS_results", action = "store", help = "The output file name."
-)
+    make_option("--path_sumstats", type = "character", default = NA, action = "store", help = "Path to the processed GWAS summary dataset file."
+    ),
+    make_option("--n", type = "numeric", default = NA, action = "store", help = "Sample size of GWAS summary dataset."
+    ),
+    make_option("--model", type = "character", default = "UKBPPP_EUR", action = "store", help = "Protein prediction models to be used."
+    ),
+    make_option("--chr", type = "numeric", default = NA, action = "store", help = "Chromosome to work on. When unspecified, will process chromosome 1-22."
+    ),
+    make_option("--output_dir", type = "character", default = getwd(), action = "store", help = "Directory to stor output file. Default is current directory."
+    ),
+    make_option("--output_name", type = "character", default = "PWAS_results", action = "store", help = "Name of the output file"
+    ),
+    make_option("--output_augmented", type = "logical", default = FALSE, action = "store", help = "Whether to output the augmented results. Default is FALSE."
+    ),
+    make_option("--clean_slate", type = "logical", default = FALSE, action = "store", help = "Whether to clean the slate and remove existing results before running the analysis. Default is FALSE."
+    )
 )
 
+# Parse command line arguments
 opt <- parse_args(OptionParser(option_list = option_list))
 
-sumstatfile     <- opt$sumstats
-gwassum.dir        <- opt$sumstats_dir
-n.sumstats        <- opt$N
-weights.models <- opt$weights_models
-CHR.list  <- opt$CHR
-out.dir  <- opt$output_dir
+ss.path     <- opt$path_sumstats
+n.sumstats  <- opt$n
+model       <- opt$model
+CHR         <- opt$chr
+output.dir  <- opt$output_dir
 output.name <- opt$output_name
+output.aug  <- opt$output_augmented
+clean.slate <- opt$clean_slate
 
-CHR.list = as.numeric(CHR.list)
-if(is.na(CHR.list)) {
-    CHR.list = c(1:22)
+# Fix CHR
+if (is.na(CHR)) {
+    CHR <- 1:22
 }
 
-
-#weights.models = "deCODE"
-#CHR.list = c(22)
-#sumstatfile = "Stroke_eur_GBMI_CHR22.sumstats"
-#gwassum.dir = "/Users/cwu18/Dropbox/MDACC_research/Undergoing/PWAS-cis/BLISS-software/"
-#out.dir = "/Users/cwu18/Dropbox/MDACC_research/Undergoing/PWAS-cis/BLISS-software/results/"
-
-#create out directory
-if (!dir.exists(out.dir)) {
-    dir.create(out.dir)
-    cat("Out directory created!\n")
-} else {
-    cat("Out directory already exists!\n")
+# Ensure that the summary statistics file exists
+if (!file.exists(ss.path)) {
+    stop(paste0("Summary statistics file ", ss.path, " not found!\n"))
 }
 
-
-if(weights.models=="UKB") {
-    # read the weights
-    load("models/UKB_weights_info.RData")
-    ldref = "1000G/1000G.EUR.usedSNP.QC.CHR"
-    weights.dir = "models/UKB/"
-} else if (weights.models=="deCODE") {
-    load("models/deCODE_weights_info.RData")
-    ldref = "1000G/1000G.EUR.usedSNP.QC.CHR"
-    weights.dir = "models/deCODE/"
-} else if (weights.models == "ARIC") {
-    load("models/ARIC_weights_info.RData")
-    ldref = "1000G/1000G.EUR.usedSNP.QC.CHR"
-    weights.dir = "models/ARIC/"
-    
-} else if (weights.models == "ARIC_AA") {
-    load("models/ARIC_weights_info.RData")
-    ldref = "1000G/1000G.AFR.usedSNP.QC.CHR"
-    weights.dir = "models/ARIC_AA/"
-    
-} else if (weights.models == "UKB_AFR_std") {
-    load("models/UKB_weights_info.RData")
-    ldref = "1000G/1000G.AFR.usedSNP.QC.CHR"
-    weights.dir = "models/UKB_AFR_std/"
-    
-} else if (weights.models == "UKB_AFR_super") {
-    load("models/UKB_weights_info.RData")
-    ldref = "1000G/1000G.AFR.usedSNP.QC.CHR"
-    weights.dir = "models/UKB_AFR_super/"
-    
-} else if (weights.models == "UKB_ASN_std") {
-    load("models/UKB_weights_info.RData")
-    ldref = "1000G/1000G.EAS.usedSNP.QC.CHR"
-    weights.dir = "models/UKB_ASN_std/"
-} else if (weights.models == "UKB_ASN_super") {
-    load("models/UKB_weights_info.RData")
-    ldref = "1000G/1000G.EAS.usedSNP.QC.CHR"
-    weights.dir = "models/UKB_ASN_super/"
-} else {
-    stop("Currently, we provide the following models: ARIC, ARIC_AA, deCODE, UKB, UKB_AFR_std, UKB_AFR_super, UKB_ASN_std, UKB_ASN_super. Please specify your choice for weights_models by selecting one of these available options." )
-}
-
-if (is.na(opt$sumstats) || is.na(opt$sumstats_dir)) {
-    stop("Both --gwas and --gwassum_dir need to be specified.")
-}
-
-# load GWAS summary data
-sumstats.org = fread(paste0(gwassum.dir,"/",sumstatfile)) %>% as.data.frame()
-
-# Initialize the header
-header.inner = colnames(sumstats.org)
-header.inner <- tolower(header.inner)
-
-# SNP
-try.snp <- c("snp", "markername", "snpid", "rs", "rsid", "rs_number", "snps","rsids")
-header.inner[header.inner %in% try.snp] <- "SNP"
-
-# Z-score
-try.z <- c("zscore", "z-score", "gc_zscore", "z")
-header.inner[header.inner %in% try.z] <- "Z"
-
-# P
-try.p <- c("pvalue", "p_value", "pval", "p_val", "gc_pvalue", "p")
-header.inner[header.inner %in% try.p] <- "P"
-
-# A1
-try.a1 <- c("a1", "allele1", "allele_1", "nea", "non_effect_allele")
-header.inner[header.inner %in% try.a1] <- "A1"
-
-# A2
-try.a2 <- c("a2", "allele2", "allele_2", "effect_allele","ea")
-header.inner[header.inner %in% try.a2] <- "A2"
-
-# Beta
-try.beta <- c("b", "beta", "effects", "effect")
-header.inner[header.inner %in% try.beta] <- "BETA"
-
-# Odds ratio
-try.or <- c("or")
-header.inner[header.inner %in% try.or] <- "ODDS_RATIO"
-
-# Log odds
-try.logodds <- c("log_odds", "logor", "log_or")
-header.inner[header.inner %in% try.logodds] <- "LOG_ODDS"
-
-# MAF
-try.maf <- c("eaf", "frq", "maf", "frq_u", "f_u", "freq","af_alt")
-header.inner[header.inner %in% try.maf] <- "MAF"
-
-# INFO
-try.info <- c("info", "info_score")
-header.inner[header.inner %in% try.info] <- "INFO"
-
-# Chromosome
-try.chromosome <- c("chrom", "ch", "chr", "chromosome","#chrom")
-header.inner[header.inner %in% try.chromosome] <- "CHROMOSOME"
-
-# Position
-try.position <- c("pos", "posit", "position", "bp", "bpos")
-header.inner[header.inner %in% try.position] <- "POSITION"
-
-# Standard error
-try.se <- c("se", "sebeta", "beta_se")
-header.inner[header.inner %in% try.se] <- "SE"
-
-# Samplesize
-try.samplesize <- c("n", "samplesize", "num_samples", "sample")
-header.inner[header.inner %in% try.samplesize] <- "N"
-
-# Update the header
-colnames(sumstats.org) <- header.inner
-
-# calculate Z score if does not exist
-# Missing z-score?
-#calculate.z <- FALSE
-if (!("Z" %in% header.inner)) {
-    do.z <- warining("No z-score column is found. We highly recommend using APSS.R function to pre-processing the data. We calculate the Z score based on the information we had.\n")
-    
-    if ("BETA" %in% header.inner & "SE" %in% header.inner) {
-        sumstats.org["Z"] <- sumstats.org$BETA / sumstats.org$SE
-        calculate.z <- TRUE
-    } else if ("ODDS_RATIO" %in% header.inner & "SE" %in% header.inner) {
-        sumstats.org["Z"] <- log(sumstats.org$ODDS_RATIO) / sumstats.org$SE
-        calculate.z <- TRUE
-    } else if ("LOG_ODDS" %in% header.inner & "SE" %in% header.inner) {
-        sumstats.org["Z"] <- sumstats.org$LOG_ODDS / sumstats.org$SE
-        calculate.z <- TRUE
-    } else if ("BETA" %in% header.inner & "P" %in% header.inner) {
-        sumstats.org["Z"] <- sign(sumstats.org$BETA) * abs(qnorm(sumstats.org$P / 2))
-        calculate.z <- TRUE
-    } else if ("ODDS_RATIO" %in% header.inner & "P" %in% header.inner) {
-        sumstats.org["Z"] <- sign(log(sumstats.org$ODDS_RATIO)) * abs(qnorm(sumstats.org$P / 2))
-        calculate.z <- TRUE
-    } else if ("LOG_ODDS" %in% header.inner & "P" %in% header.inner) {
-        sumstats.org["Z"] <- sign(sumstats.org$ODDS_RATIO) * abs(qnorm(sumstats.org$P / 2))
-        calculate.z <- TRUE
+# Ensure that the model files exist
+if (paste0("model/", model) %>% dir.exists()) {
+    if (paste0("model/", model, "/.manifest") %>% file.exists()) {
+        paste0("Model ", model, " found.\nCorresponding manifest file found.\n") %>% cat()
     } else {
-        cat("I can't calculate z-score based on the information I have. SAD FACE EMOJI.", sep = "\n")
+        stop(
+            paste0("Model ", model, " is found, but with no manifest file!\n", "Please make sure the proper model files are in ", getwd(), ".")
+        )
     }
-    
-    if (sum(is.na(sumstats.org$Z)) != 0) {
-        n.start <- nrow(sumstats.org)
-        sumstats.org <- sumstats.org[!is.na(sumstats.org$Z),]
-        n.end <- nrow(sumstats.org)
-        cat(paste0(n.start - n.end, " rows removed for having invalid z-score!"), sep = "\n")
-    }
-    cat(separator, sep = "\n")
-}
-
-
-
-
-if(sum(grepl("chr",sumstats.org[,"CHROMOSOME"]))>100) {
-    
 } else {
-    sumstats.org[,"CHROMOSOME"] = paste0("chr",sumstats.org[,"CHROMOSOME"])
+    stop(
+        paste0("Model ", model, " not found!\n", "Please make sure the proper model files are in ", getwd(), ".")
+    )
 }
 
-sumstat.cols = colnames(sumstats.org)
+########################################
+# Old functions from TestAssociation.r #
+########################################
 
-# Check if necessary columns are present in the GWAS summary data
-# Improved language for error messages and notes
+# ComputeAlpha
+ComputeAlpha <- function(w, Z, n, n_0, matrix.LD) {
+    # BIG SIGMA
+    SIGMA <- t(w) %*% matrix.LD %*% w * (n_0 - 1) / n_0
 
-if (!"CHROMOSOME" %in% sumstat.cols) {
-    stop("The column 'CHROMOSOME' is missing from the GWAS summary data. Please reprocess the data to include this column.")
+    # SIGMA <- (t(ref %*% w) %*% (ref %*% w)) / n_0
+    SIGMA <- SIGMA[1, 1]
+
+    # Alpha hat
+    alpha <- ((w %*% Z) / sqrt(n)) / SIGMA
+    alpha <- alpha[1, 1]
+
+    # small sigma
+    sigma <- sqrt(1 - 2 * ((w %*% Z) / sqrt(n)) * alpha + alpha ^ 2 * SIGMA)
+    sigma <- sigma[1, 1]
+
+    # se of alpha
+    se <- sqrt((1 / n + 1 / n_0) * (SIGMA * alpha ^ 2) / SIGMA + sigma ^ 2 / (n * SIGMA))
+
+    return(c(alpha, se))
 }
 
-if (!"SNP" %in% sumstat.cols) {
-    stop("The column 'SNP' is missing from the GWAS summary data. Please reprocess the data to include this column.")
+# allele.qc
+allele.qc <- function(a1, a2, ref1, ref2) {
+    ref <- ref1
+    flip <- ref
+    flip[ref == "A"] <- "T"
+    flip[ref == "T"] <- "A"
+    flip[ref == "G"] <- "C"
+    flip[ref == "C"] <- "G"
+    flip1 <- flip
+    ref <- ref2
+    flip <- ref
+    flip[ref == "A"] <- "T"
+    flip[ref == "T"] <- "A"
+    flip[ref == "G"] <- "C"
+    flip[ref == "C"] <- "G"
+    flip2 <- flip
+    snp <- list()
+    snp[["keep"]] <- !((a1 == "A" & a2 == "T") | (a1 == "T" & a2 == "A") | (a1 == "C" & a2 == "G") | (a1 == "G" & a2 == "C"))
+    snp[["flip"]] <- (a1 == ref2 & a2 == ref1) | (a1 == flip2 & a2 == flip1)
+    return(snp)
 }
 
-if (!"A1" %in% sumstat.cols) {
-    stop("The column 'A1' is missing from the GWAS summary data. Please reprocess the data to include this column.")
-} else {
-    cat("Note: In this data, 'A1' represents the non-effect allele.\n")
-}
+# TestAssociation
+TestAssociation <- function(sumstats, weight, SS.original, matrix.LD, n.sumstats, n.ref) {
 
-if (!"A2" %in% sumstat.cols) {
-    stop("The column 'A2' is missing from the GWAS summary data. Please reprocess the data to include this column.")
-} else {
-    cat("Note: In this data, 'A2' represents the effect allele.\n")
-}
+    # Find common SNPs
+    snps.common <- intersect(sumstats$SNP, SS.original$SNP)
 
-if (!"N" %in% sumstat.cols) {
-    cat("'N' is not present in the GWAS summary data.\n")
+    # Keep only common SNPs
+    sumstats.temp <- sumstats[sumstats$SNP %in% snps.common, ]
+
+    rownames(sumstats.temp) <- sumstats.temp$SNP
+    names(weight) <- SS.original$SNP
+
+    sumstats.temp <- sumstats.temp[snps.common, ]
+    SS.original <- SS.original[snps.common, ]
+    weight <- weight[snps.common]
+    matrix.LD <- matrix.LD[snps.common, snps.common]
+
+    # Allele-flip the phenotype ss and weight w.r.t. reference panel
+    qc <- allele.qc(
+        sumstats.temp$A1,
+        sumstats.temp$A2,
+        SS.original$A1,
+        SS.original$A2
+    )
+
+    sumstats.temp$Z[qc$flip] <- -1 * sumstats.temp$Z[qc$flip]
+
+    if (!("N" %in% colnames(sumstats.temp))) {
+        sumstats.temp["N"] <- n.sumstats
+    } else {
+        n.sumstats <- floor(mean(sumstats.temp$N))
+    }
+
+    # Remove strand ambiguous SNPs (if any)
+    if (sum(!qc$keep) > 0) {
+        sumstats.temp <- sumstats.temp[keep, ]
+        SS.original   <- SS.original[keep, ]
+        weight        <- weight[keep]
+        matrix.LD     <- matrix.LD[keep, keep]
+    }
+
+    ################
+    # Classic PWAS #
+    ################
+
+    # Compute TWAS z-score, r2, and p-value
+    z.twas  <- as.numeric(weight %*% sumstats.temp$Z)
+    r2.twas <- as.numeric(weight %*% matrix.LD %*% weight)
+
+    p.classic <- 2 * (pnorm(abs(z.twas / sqrt(r2.twas)), lower.tail = FALSE))
+
+    ####################
+    # Alternative PWAS #
+    ####################
     
-    if (is.na(n.sumstats)) {
-        stop("The sample size ('N') is not provided. Please include it in the GWAS summary data or specify it as an argument.")
+    if (length(weight) > 1) {
+        out <- ComputeAlpha(
+            w   = weight,
+            Z   = sumstats.temp$Z,
+            n   = n.sumstats,
+            n_0 = n.ref,
+            matrix.LD = matrix.LD
+        )
+
+        out[3] <- 2 * (pnorm(abs(out[1] / out[2]), lower.tail = FALSE))
+    } else {
+        out <- c(NA, NA, NA)
+    }
+
+    output <- c(z.twas, sqrt(r2.twas), p.classic, out)
+
+    names(output) <- c(
+        "beta.classic","se.classic", "p.classic",
+        "beta_alt", "se_alt", "p_alt"
+    )
+
+    return(output)
+}
+
+########################################
+# Functions used to handle file states #
+########################################
+
+# GetState
+GetState <- function(destination) {
+    if (destination %>% paste0(., ".finished") %>% file.exists()) {
+        state <- 2
+    } else if (destination %>% file.exists()) {
+        state <- 1
+    } else {
+        state <- 0
+    }
+
+    return(state)
+}
+
+# InitializeFile
+InitializeFile <- function(state.current, destination, header) {
+    if (state.current == 0) {
+        file.current <- matrix(integer(0), nrow = 0, ncol = length(header)) %>% as.data.frame()
+
+        names(file.current) <- header
+
+        write.table(
+            file.current,
+            file = destination,
+            sep = "\t",
+            row.names = FALSE,
+            col.names = TRUE,
+            quote = FALSE
+        )
+    } else {
+        file.current <- fread(destination, data.table = FALSE)
+    }
+
+    return(file.current)
+}
+
+# MarkFinished
+MarkFinished <- function(destination) {
+    paste0("mv ", destination, " ", destination, ".finished") %>% system()
+
+    invisible(NULL)
+}
+
+############
+# Manifest #
+############
+
+# Read the manifest file
+manifest <- paste0("model/", model, "/.manifest") %>%
+    fread(., data.table = FALSE) %>%
+    filter(chromosome %in% CHR)
+
+if (nrow(manifest) == 0) {
+    stop(paste0("No protein models found for chromosome(s): ", paste(CHR, collapse = ", "), "."))
+}
+
+######################
+# Summary statistics #
+######################
+
+# Trial read the summary statistics file
+ss <- fread(ss.path, data.table = FALSE, header = TRUE, showProgress = FALSE, nrows = 10)
+
+if (is.na(n.sumstats)) {
+    if (!("N" %in% colnames(ss))) {
+        stop("The summary statistics file does not contain a column named 'N'. Please provide the sample size with --n.")
+    }
+
+    if (all(is.na(ss$N))) {
+        stop("The summary statistics file contains no valid sample size information. Please provide the sample size with --n.")
     }
 }
 
-if (!"Z" %in% sumstat.cols) {
-    stop("The column 'Z' for Z-scores is missing from the GWAS summary data. Please reprocess the data to include this column.")
+# Read the summary statistics file
+# Be cautious with na.omit() as it may remove too many rows unnecessarily
+ss.pheno <- fread(ss.path, data.table = FALSE, header = TRUE, showProgress = FALSE)
+ss.pheno <- ss.pheno[ss.pheno$CHR %in% CHR, ] %>%
+    na.omit() %>%
+    filter(!duplicated(SNP))
+
+if (is.na(n.sumstats)) {
+    n.sumstats <- median(ss.pheno$N, na.rm = TRUE)
 }
 
-# obtain all proteins:
-proteins = list.files(weights.dir)
+##################
+# Main iteration #
+##################
 
-outres = as.data.frame(matrix(NA,7000,12))
+# Create the output directory if it does not exist
+dir.create(output.dir, recursive = TRUE, showWarnings = FALSE)
 
-colnames(outres) = c("chr","p0","p1","gene","R2","Zscore.classic","p.classic",   "beta_BLISS","se_BLISS","p_BLISS","n_used_snp","n_snp")
+destination <- file.path(output.dir, output.name)
 
-ref = ldref
-outindx = 1
-for(chromosome in CHR.list) {
-    reference.bim <- paste0(ref, chromosome, ".bim") %>% fread(., data.table = FALSE)
-    reference.bed <- paste0(ref, chromosome) %>% BEDMatrix(., simple_names = TRUE)
-    
-    sumstats <- sumstats.org[sumstats.org$CHROMOSOME == paste0("chr", chromosome), ]
-    sumstats = sumstats[rowSums(is.na(sumstats))==0, ]
-    
-    used.lookup = lookup[lookup[,"chr"] ==   chromosome,]
-    used.proteins = proteins[proteins %in% paste0(used.lookup[,"gene"],".RData")]
-    
-    reference.dup <- reference.bim$V2 %>% duplicated()
-    if (reference.dup %>% sum() != 0) {
-        reference.bim <- reference.bim[!reference.dup, ]
-        reference.bed <- reference.bed[, !reference.dup]
+# Header
+header <- c(
+    "protein", "beta", "se", "p", "model_r2", "n_snps", "MHC"
+)
+
+# Get state
+state.current <- GetState(destination)
+
+if (state.current != 2) {
+    file.current <- InitializeFile(state.current, destination, header)
+} else {
+    if (!clean.slate) {
+        stop(paste0("The file ", destination, " is already finished. Please remove the finished file to re-run the analysis or set clean_slate to TRUE.\n"))
+    } else {
+        paste0(destination, ".finished") %>% file.remove()
+        file.current <- InitializeFile(0, destination, header)
     }
-    
-    for(j in 1:length(used.proteins)) {
-        load(paste0(weights.dir,used.proteins[j]))
-        
-        ref = ldref
-        
-        protein = gsub(".RData","",used.proteins[j])
-        outres[outindx,1:4] = used.lookup[used.lookup[,"gene"]==protein,c("chr","p.0","p.1","gene")]
-        outres[outindx,5] = R2
-        outres[outindx,12] = sum(weight!=0)
-        
-        tryCatch({
-            outres[outindx,6:11] = TestAssociation(sumstats, weight, ref, n.sumstats,reference.bim, reference.bed, skip.robust = TRUE)
-        }, error=function(e){
-            cat("Warning: No overlapping SNPs found in protein:", protein, "\n")
-            cat("Error Details:", conditionMessage(e), "\n")
-            
-        })
-        outindx = outindx + 1
-        if(outindx %% 20 ==0 ) {
-            cat("Finish Indx ",outindx,"\n")
-            
+}
+
+# Wipe the file if clean slate is requested
+if (clean.slate) {
+    if (file.exists(destination)) {
+        file.remove(destination)
+    }
+
+    file.current <- InitializeFile(0, destination, header)
+}
+
+# Get index
+if (nrow(file.current) == 0) {
+    index.current <- 1
+} else {
+    index.current <- which(manifest$protein == file.current$protein[nrow(file.current)]) + 1
+}
+
+
+# Setup progress bar
+total <- nrow(manifest)
+to_do <- total - (index.current - 1)
+pb <- txtProgressBar(min = 0, max = to_do, style = 3)
+
+# Main iteration
+for (j in index.current:nrow(manifest)) {
+
+    current_progress <- j - index.current + 1
+    setTxtProgressBar(pb, current_progress)
+
+    # Initialize the update vector
+    update <- length(header) %>% numeric()
+
+    # 1: protein name
+    update[1] <- manifest$protein[j]
+
+    file <- paste0("model/", model, "/", manifest$filename[j])
+    if (file %>% file.exists()) {
+        load(file)
+
+        if (all(CHECKED$alpha == 0)) {
+            CHECKED$alpha <- rep(1 / length(CHECKED$alpha), length(CHECKED$alpha))
         }
+
+        weight <- as.matrix(weight) %*% CHECKED$alpha
+
+        tryCatch(
+            expr = {
+                temp <- TestAssociation(
+                    sumstats    = ss.pheno,
+                    weight      = weight,
+                    SS.original = ss,
+                    matrix.LD   = matrix.LD,
+                    n.sumstats  = n.sumstats,
+                    n.ref       = manifest$n_ref[j]
+                )
+            },
+            error = function(e) {cat("ERROR :", conditionMessage(e), "\n")}
+        )
+
+        update[2:4] <- temp[4:6]
+        update[5] <- mean(R2.PUMAS, na.rm = TRUE)
+        update[6] <- length(weight)
+        update[7] <- manifest$MHC[j]
     }
-    
-    cat("Finish CHR",chromosome,"\n")
+
+    # Update
+    cat(
+        update %>% paste(., collapse = "\t") %>% paste0(., "\n"),
+        file = destination,
+        append = TRUE
+    )
 }
 
-outres = outres[!is.na(outres[,1]),]
+# Close progress bar
+close(pb)
 
-write.table(outres,quote = FALSE, row.names = FALSE, file = paste0(out.dir,"/",output.name))
+cat(sprintf("\nCompleted processing %d proteins!\n", to_do))
+
+# Augment results if requested
+if (output.aug) {
+    # Read the final results and augment with additional information from the manifest
+    result <- fread(destination, data.table = FALSE, header = TRUE)
+
+    manifest <- manifest[, c("protein", "filename", "chromosome", "start", "end")]
+
+    result <- left_join(result, manifest, by = "protein")
+    result["q"] <- p.adjust(result$p, method = "fdr")
+
+    # Save the augmented results
+    write.table(
+        result,
+        file = destination,
+        sep = "\t",
+        row.names = FALSE,
+        col.names = TRUE,
+        quote = FALSE
+    )
+}
+
+# Rename the intermediate file to "finished"
+MarkFinished(destination)
