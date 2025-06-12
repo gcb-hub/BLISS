@@ -18,6 +18,7 @@ Download our pre-constructed model and LD matrix files from our S3 bucket and pl
 
 ```bash
 cd BLISS
+
 wget S3-bucket && unzip model.zip
 ```
 
@@ -31,8 +32,8 @@ GWAS summary statistics must be formatted as a flat file with the following mand
 
 1. **CHR** - chromosome ID
 2. **SNP** - SNP identifier (rsID)
-3. **A1** - other allele (non-effect allele)
-4. **A2** - effective allele (effect/risk/coding allele)
+3. **A1** - effect allele (effect/risk/coding allele)
+4. **A2** - other allele (non-effect allele)
 5. **Z** - Z-scores, **sign with respect to A1**
 
 We also strongly recommend including one optional column:
@@ -48,22 +49,13 @@ To identify protein-trait associations, use the main analysis script. Here's an 
 ```bash
 Rscript BLISS_Association.R \
   --path_sumstats sum_dat/Stroke_eur_GBMI_CHR22.sumstats \
+  --n 300000
   --model UKBPPP_EUR \
-  --chr 22 \
+  --chr 12 \
   --output_dir results/ \
-  --output_name stroke_res_CHR22.txt \
-  --n 50000
-```
-
-For genome-wide analysis across all chromosomes (1-22), simply omit the `--chr` parameter:
-
-```bash
-Rscript BLISS_Association.R \
-  --path_sumstats sum_dat/stroke_gwas.sumstats \
-  --model UKBPPP_EUR \
-  --output_dir results/ \
-  --output_name stroke_genome_wide.txt \
-  --n 50000
+  --output_name stroke_res_CHR12.txt \
+  --output_augmented TRUE \
+  --clean_slate FALSE \
 ```
 
 ### Parameters
@@ -77,7 +69,7 @@ Rscript BLISS_Association.R \
 | `--output_dir` | string | Directory to store output files | Current directory |
 | `--output_name` | string | Name of the output file | PWAS_results |
 | `--output_augmented` | logical | Output augmented results with additional annotations | FALSE |
-| `--clean_slate` | logical | Remove existing results before running | FALSE |
+| `--clean_slate` | logical | Discard unfinished result and start fresh? | FALSE |
 
 ### Output: Protein-Trait Association Results
 
@@ -107,16 +99,15 @@ We provide protein expression imputation models across various platforms and anc
 
 | Model Name | Platform | Method | Ancestry | Training Sample Size | # Proteins |
 |------------|----------|---------|----------|---------------------|------------|
-| UKBPPP_EUR | OLink | BLISS | European | 46,066 | 1,412 |
-| ARIC | SomaScan | BLISS | European | 7,213 | 4,423 |
-| deCODE | SomaScan | BLISS | European | 35,559 | 4,428 |
-| UKB_AFR_std | OLink | Standard PWAS | African | 1,171 | 1,412 |
-| UKB_AFR_super | OLink | BLISS (Super Learner) | African | 1,171 | 1,412 |
-| ARIC_AA | SomaScan | BLISS | African American | 1,871 | 4,415 |
-| UKB_ASN_std | OLink | Standard PWAS | Asian | 914 | 1,412 |
-| UKB_ASN_super | OLink | BLISS (Super Learner) | Asian | 914 | 1,412 |
+| UKBPPP_EUR | Olink | BLISS | European | 46,066 | 1,412 |
+| UKBPPP_AFR | Olink | BLISS | African | 46,066 | 1,412 |
+| UKBPPP_ASN | Olink | BLISS | Asian | 923 | 1,412 |
+| deCODE | SomaScan | BLISS | European (Icelandic) | 46,066 | 1,412 |
+| ARIC_EA | SomaScan | BLISS | European American | 46,066 | 1,412 |
+| ARIC_AA | SomaScan | BLISS | African American | 46,066 | 1,412 |
 
-**Recommendation:** We recommend using models with estimated heritability exceeding 0.01 as analyzed in our manuscript.
+
+**Recommendation:** Although we are providing you with results for all the available proteins, we recommend using models **with estimated heritability exceeding 0.01 as analyzed in our manuscript**.
 
 ## Data Preprocessing
 
@@ -144,30 +135,6 @@ Z = BETA / SE
 
 ## Advanced Usage
 
-### Batch Processing Multiple Traits
-
-For analyzing multiple traits, you can create a shell script:
-
-```bash
-#!/bin/bash
-traits=("trait1" "trait2" "trait3")
-for trait in "${traits[@]}"; do
-    Rscript BLISS_Association.R \
-      --path_sumstats "data/${trait}_gwas.sumstats" \
-      --model UKBPPP_EUR \
-      --output_dir "results/" \
-      --output_name "${trait}_results.txt" \
-      --output_augmented TRUE
-done
-```
-
-### Progress Monitoring
-
-The script includes a progress bar and will display:
-- Current processing status
-- Number of proteins processed
-- Completion summary
-
 ### File State Management
 
 The script automatically handles interrupted runs:
@@ -181,7 +148,7 @@ The script automatically handles interrupted runs:
 A: Use our `APSS.R` script for preprocessing, or calculate manually: Z = BETA/SE. For odds ratios, first take the natural logarithm: BETA = log(OR), then Z = BETA/SE.
 
 **Q: What if I get "model not found" errors?**
-A: Ensure model files are properly downloaded and placed in the `model/` directory. Each model should have a corresponding `.manifest` file.
+A: Ensure model files are properly downloaded and placed in the `model/` directory. Each model must have a corresponding `.manifest` file.
 
 **Q: Why do I get warnings about replacement elements?**
 A: This typically indicates improperly formatted GWAS summary data. Use `APSS.R` to preprocess your data for robust results.
@@ -191,9 +158,6 @@ A: Yes, use the `--chr` parameter to specify a single chromosome (1-22). Omit th
 
 **Q: How do I interpret the MHC column?**
 A: The MHC column indicates whether the protein/gene is located in the major histocompatibility complex region, which may require special consideration due to its unique linkage disequilibrium patterns.
-
-**Q: What's the difference between classic and alternative methods?**
-A: The script implements both standard PWAS and the improved BLISS method. The main output columns (beta, se, p) represent the recommended BLISS results.
 
 ## Troubleshooting
 
