@@ -62,14 +62,14 @@ Rscript BLISS_Association.R \
 
 | Parameter | Type | Description | Default |
 |-----------|------|-------------|---------|
-| `--path_sumstats` | string | Path to the processed GWAS summary statistics file | Required |
-| `--n` | numeric | Sample size of GWAS (if not provided in N column) | Optional |
-| `--model` | string | Protein prediction model to use | UKBPPP_EUR |
-| `--chr` | numeric | Specific chromosome to analyze (1-22) | All chromosomes |
-| `--output_dir` | string | Directory to store output files | Current directory |
-| `--output_name` | string | Name of the output file | PWAS_results |
-| `--output_augmented` | logical | Output augmented results with additional annotations | FALSE |
-| `--clean_slate` | logical | Discard unfinished result and start fresh? | FALSE |
+| `path_sumstats` | string | Path to the processed GWAS summary statistics file | Required |
+| `n` | numeric | Sample size of GWAS (if not provided in N column) | Optional |
+| `model` | string | Protein prediction model to use | UKBPPP_EUR |
+| `chr` | numeric | Specific chromosome to analyze (1-22) | All chromosomes |
+| `output_dir` | string | Directory to store output files | Current directory |
+| `output_name` | string | Name of the output file | PWAS_results |
+| `output_augmented` | logical | Output augmented results with additional annotations | FALSE |
+| `clean_slate` | logical | Discard unfinished result and start fresh? | FALSE |
 
 ### Output: Protein-Trait Association Results
 
