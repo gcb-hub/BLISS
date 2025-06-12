@@ -23,7 +23,7 @@ wget S3-bucket && unzip model.zip
 
 ## Typical Analysis and Outputs
 
-BLISS performs analyses by combining user-specified protein expression prediction models with GWAS summary statistics to identify significant gene-trait associations. We offer multiple pre-built sets of protein imputation models tailored for various platforms and ancestries. Users only need to provide GWAS summary data and specify the imputation models to be used.
+BLISS performs analyses by combining user-specified protein expression prediction models with GWAS summary statistics to identify significant protein-trait associations. We offer multiple pre-built sets of protein imputation models tailored for various proteomic platforms and ancestries. Users only need to provide GWAS summary data and specify the imputation models to be used.
 
 ### Input: GWAS Summary Statistics
 
