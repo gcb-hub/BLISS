@@ -7,7 +7,7 @@ We introduced **Biomarker expression Level Imputation using Summary-level Statis
 ## Installation
 
 ### Code
-Simply pull from our GitHub repo to get the up-to-date version:
+Simply clone from our GitHub repo to get the up-to-date version:
 
 ```bash
 git clone https://github.com/gcb-hub/BLISS.git
