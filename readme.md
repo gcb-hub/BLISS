@@ -22,11 +22,11 @@ cd BLISS
 wget S3-bucket && unzip model.zip
 ```
 
-## Typical Analysis and Outputs
+## Typical analysis and outputs
 
 BLISS performs analyses by combining user-specified protein expression prediction models with GWAS summary statistics to identify significant protein-trait associations. We offer multiple pre-built sets of protein imputation models tailored for various proteomic platforms and ancestries. Users only need to provide GWAS summary data and specify the imputation models to be used.
 
-### Input: GWAS Summary Statistics
+### Input: GWAS summary statistics
 
 GWAS summary statistics must be formatted as a flat file with the following mandatory columns:
 
@@ -71,7 +71,7 @@ Rscript BLISS_Association.R \
 | `output_augmented` | logical | Output augmented results with additional annotations | FALSE |
 | `clean_slate` | logical | Discard unfinished result and start fresh? | FALSE |
 
-### Output: Protein-Trait Association Results
+### Output: Protein-trait association results
 
 The output file contains the following columns:
 
@@ -93,7 +93,7 @@ When `--output_augmented TRUE` is specified, additional columns are included:
 - `end`: Gene end position  
 - `q`: FDR-adjusted p-values
 
-## Available Protein Expression Imputation Models
+## Available protein expression imputation models
 
 We provide protein expression imputation models across various platforms and ancestries:
 
@@ -109,9 +109,9 @@ We provide protein expression imputation models across various platforms and anc
 
 **Recommendation:** Although we are providing you with results for all the available proteins, we recommend using models **with estimated heritability exceeding 0.01 as analyzed in our manuscript**.
 
-## Data Preprocessing
+## Data preprocessing
 
-### Quality Control Recommendations
+### Quality control recommendations
 
 We strongly advise using quality control tools before running the main analysis:
 
@@ -120,7 +120,7 @@ We strongly advise using quality control tools before running the main analysis:
 3. **Verify Z-score calculations:** If Z-scores are missing, they can be calculated as Z = BETA/SE
 4. **Handle missing data:** Remove or impute missing values appropriately
 
-### Z-Score Calculation
+### Z-Score calculation
 
 If your GWAS summary statistics include BETA and SE columns but lack Z-scores:
 
@@ -133,9 +133,9 @@ BETA = log(OR)
 Z = BETA / SE
 ```
 
-## Advanced Usage
+## Advanced usage
 
-### File State Management
+### Output state management
 
 The script automatically handles interrupted runs:
 - Creates `.finished` files upon completion
