@@ -48,12 +48,12 @@ To identify protein-trait associations, use the main analysis script. Here's an 
 
 ```bash
 Rscript BLISS_Association.R \
-  --path_sumstats sum_dat/Stroke_eur_GBMI_CHR22.sumstats \
+  --path_sumstats example/RandomGWAS_chr12.sumstats \
   --n 300000
   --model UKBPPP_EUR \
   --chr 12 \
   --output_dir results/ \
-  --output_name stroke_res_CHR12.txt \
+  --output_name result_RandomGWAS_chr12.txt \
   --output_augmented TRUE \
   --clean_slate FALSE \
 ```
