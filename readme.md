@@ -145,18 +145,23 @@ The script automatically handles interrupted runs:
 ## FAQ
 
 **Q: How do I calculate Z-scores from my GWAS summary statistics?**
+
 A: Use our `APSS.R` script for preprocessing, or calculate manually: Z = BETA/SE. For odds ratios, first take the natural logarithm: BETA = log(OR), then Z = BETA/SE.
 
 **Q: What if I get "model not found" errors?**
+
 A: Ensure model files are properly downloaded and placed in the `model/` directory. Each model must have a corresponding `.manifest` file.
 
 **Q: Why do I get warnings about replacement elements?**
+
 A: This typically indicates improperly formatted GWAS summary data. Use `APSS.R` to preprocess your data for robust results.
 
 **Q: Can I analyze a specific chromosome only?**
+
 A: Yes, use the `--chr` parameter to specify a single chromosome (1-22). Omit this parameter to analyze all chromosomes.
 
 **Q: How do I interpret the MHC column?**
+
 A: The MHC column indicates whether the protein/gene is located in the major histocompatibility complex region, which may require special consideration due to its unique linkage disequilibrium patterns.
 
 ## Troubleshooting
