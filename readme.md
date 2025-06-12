@@ -99,12 +99,12 @@ We provide protein expression imputation models across various platforms and anc
 
 | Model Name | Platform | Method | Ancestry | Training Sample Size | # Proteins |
 |------------|----------|---------|----------|---------------------|------------|
-| UKBPPP_EUR | Olink | BLISS | European | 46,066 | 1,412 |
-| UKBPPP_AFR | Olink | BLISS | African | 46,066 | 1,412 |
+| UKBPPP_EUR | Olink | BLISS | European | 49,341 | 1,412 |
+| UKBPPP_AFR | Olink | BLISS | African | 1,181 | 1,412 |
 | UKBPPP_ASN | Olink | BLISS | Asian | 923 | 1,412 |
-| deCODE | SomaScan | BLISS | European (Icelandic) | 46,066 | 1,412 |
-| ARIC_EA | SomaScan | BLISS | European American | 46,066 | 1,412 |
-| ARIC_AA | SomaScan | BLISS | African American | 46,066 | 1,412 |
+| deCODE | SomaScan | BLISS | European (Icelandic) | 35,892 | 1,412 |
+| ARIC_EA | SomaScan | BLISS | European American | 7,213 | 1,412 |
+| ARIC_AA | SomaScan | BLISS | African American | 1,181 | 1,412 |
 
 
 **Recommendation:** Although we are providing you with results for all the available proteins, we recommend using models **with estimated heritability exceeding 0.01 as analyzed in our manuscript**.
