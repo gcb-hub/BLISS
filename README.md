@@ -1,177 +1,230 @@
 # BLISS
 
-We introduced **Biomarker expression Level Imputation using Summary-level Statistics (BLISS)**, a novel method designed for developing protein imputation models using summary-level pQTL data. This software is to support our [gcb-hub](http://www.gcbhub.org) (see figure below) and creating large-scale imputations models for multi-ancestry proteome-wide association analysis. 
+We introduced **Biomarker expression Level Imputation using Summary-level Statistics (BLISS)**, a novel method designed for developing protein imputation models using summary-level pQTL data. This software supports our [GCB Hub](http://www.gcbhub.org) and facilitates researchers to conduct their own proteome-wide association studies (PWAS).
 
-![BLISS_illustration](BLISS_illustration.png)1111
-
-
+![BLISS_illustration](BLISS_illustration.png)
 
 ## Installation
 
-There are two ways to install BLISS:
+### Code
+Simply pull from our GitHub repo to get the up-to-date version:
 
-### Option 1: Stable Release. 
-Download the stable version (V1.0) of BLISS, along with all related data, from gcb-hub eith using this [link](https://gcbhub.s3.us-east-2.amazonaws.com/BLISS.zip) or
-
+```bash
+git clone https://github.com/gcb-hub/BLISS.git
 ```
-wget -c https://gcbhub.s3.us-east-2.amazonaws.com/BLISS.zip
-unzip BLISS.zip
+
+### Model files
+Download our pre-constructed model and LD matrix files from our S3 bucket and place them in the appropriate directory:
+
+```bash
 cd BLISS
+wget S3-bucket && unzip model.zip
 ```
 
-### Option 2: Latest Release
+## Typical Analysis and Outputs
 
-For the most up-to-date version of BLISS, you can download and unpack the repository from this GitHub page, then put the updated codes into the BLISS directory:
+BLISS performs analyses by combining user-specified protein expression prediction models with GWAS summary statistics to identify significant gene-trait associations. We offer multiple pre-built sets of protein imputation models tailored for various platforms and ancestries. Users only need to provide GWAS summary data and specify the imputation models to be used.
 
-```
-wget https://github.com/gcb-hub/BLISS/archive/refs/heads/main.zip
-```
-
-
-
-### Pre-requisite (Install neccessary R Packages)
-
-Open R and install the necessary packages by running the following codes. 
-```
-packages_to_install <- c("data.table", "BEDMatrix", "dplyr", "MASS","optparse")
-
-# Loop through each package and install if not already installed
-for (pkg in packages_to_install) {
-  if (!requireNamespace(pkg, quietly = TRUE)) {
-    install.packages(pkg)
-  }
-}
-```
-
-## Typical analysis and outputs
-
-BLISS performs analyses by combining user-specified protein expression prediction models with GWAS summary statistics to identify significant gene-trait associations. We offer six pre-built sets of protein imputation models tailored for various platforms and ancestries. Users only need to provide GWAS summary data and specify the imputation models to be used.
-
-### Input: GWAS summary statistics
+### Input: GWAS Summary Statistics
 
 GWAS summary statistics must be formatted as a flat file with the following mandatory columns:
 
-1. CHROMOSOME - chromosome id
-2. SNP – SNP identifier (rsID)
-3. A1 – other allele, also sometimes called  non-effect allele 
-4. A2 – effective allele, also sometimes called risk allele or coding allele
-5. Z – Z-scores, **sign with respect to A2**
+1. **CHR** - chromosome ID
+2. **SNP** - SNP identifier (rsID)
+3. **A1** - other allele (non-effect allele)
+4. **A2** - effective allele (effect/risk/coding allele)
+5. **Z** - Z-scores, **sign with respect to A1**
 
 We also strongly recommend including one optional column:
 
-6. N - sample size, which is often the discovery stage sample size, not maximum sample size
+6. **N** - sample size (discovery stage sample size, not maximum sample size)
 
+**Note:** Column names are case-sensitive. Make sure your input file uses the exact column names listed above.
 
-As an example, we offer [processed stroke GWAS summary data from the GBMI](https://www.dropbox.com/scl/fi/yeh0g0ek6vis9suhonjfg/Stroke_eur_GBMI_CHR22.sumstats?rlkey=9wsxglhz5chasy2lowvlb2rjy&dl=0), limited to chromosome 22 for illustration purposes. Please create a `sum_dat` folder and put the downloaded `Stroke_eur_GBMI_CHR22.sumstats` into the `sum_dat` folder. The full raw dataset can be downloaded from the [GBMI Resources Page](https://www.globalbiobankmeta.org/resources).
+### Running BLISS Analysis
 
-**Recommendation:** We strongly advise using our interactive quality control tool (`APSS.R`) or other qc tools before running `BLISS_Association.R`. While our software is designed for robustness, automatically calculating Z-scores and adopting common column names for chromosome, SNP, Z, and N, we intentionally leave the A1 and A2 columns unchecked. This emphasizes the critical need to accurately specify the effective allele (A2) and the other allele (A1) for reliable results. If A1 and A2 are misspecified, the effect direction will be opposite.
+To identify protein-trait associations, use the main analysis script. Here's an example using stroke GWAS data:
 
-**Note:** We use SNP (rsID) to map GWAS summary statistics, LD reference panel, and protein prediction models.
-
-**Note:** Similar to TWAS, our approach requires comprehensive summary-level data without significance thresholding (i.e., raw, quality-controlled GWAS data). This ensures that most SNPs used for protein expression prediction are present in the GWAS summary statistics. 
-
-### Identifying protein-trait associations
-
-To identify protein-trait associations, execute the `BLISS_Association.R` script using data for chromosome 22 as shown below:
-
-```
+```bash
 Rscript BLISS_Association.R \
---sumstats Stroke_eur_GBMI_CHR22.sumstats \
---sumstats_dir sum_dat/ \
---weights_models UKB \
---CHR 22 \
---output_dir results/ \
---output_name stroke_res_CHR22.txt
+  --path_sumstats sum_dat/Stroke_eur_GBMI_CHR22.sumstats \
+  --model UKBPPP_EUR \
+  --chr 22 \
+  --output_dir results/ \
+  --output_name stroke_res_CHR22.txt \
+  --n 50000
 ```
 
-This analysis should take approximately about five seconds to complete. Log information will be displayed on the screen. Upon successful execution, a file named stroke_res_CHR22.txt will be generated, containing 48 rows. Detailed descriptions of the outputs will follow.
+For genome-wide analysis across all chromosomes (1-22), simply omit the `--chr` parameter:
 
-Internally, the script performs these tasks: (1) unify the GWAS and reference SNPs and remove/flip alleles as needed; (2) test protein-trait associations; (3) estimate the effect sizes and their standard errors; and (4) report results.
+```bash
+Rscript BLISS_Association.R \
+  --path_sumstats sum_dat/stroke_gwas.sumstats \
+  --model UKBPPP_EUR \
+  --output_dir results/ \
+  --output_name stroke_genome_wide.txt \
+  --n 50000
+```
 
 ### Parameters
 
-Here are the revised parameters for `BLISS_Association.R`:
+| Parameter | Type | Description | Default |
+|-----------|------|-------------|---------|
+| `--path_sumstats` | string | Path to the processed GWAS summary statistics file | Required |
+| `--n` | numeric | Sample size of GWAS (if not provided in N column) | Optional |
+| `--model` | string | Protein prediction model to use | UKBPPP_EUR |
+| `--chr` | numeric | Specific chromosome to analyze (1-22) | All chromosomes |
+| `--output_dir` | string | Directory to store output files | Current directory |
+| `--output_name` | string | Name of the output file | PWAS_results |
+| `--output_augmented` | logical | Output augmented results with additional annotations | FALSE |
+| `--clean_slate` | logical | Remove existing results before running | FALSE |
 
-| Flag             | Value                          | Description                                                  |
-| ---------------- | ------------------------------ | ------------------------------------------------------------ |
-| --sumstats       | Stroke_eur_GBMI_CHR22.sumstats | The processed GWAS summary data                              |
-| --sumstats_dir   | sum_dat/                       | Directory where `sumstats` is stored                         |
-| --weights_models | UKB                            | The BLISS protein prediction models to be used (refer to the Protein Expression Imputation Models section for details) |
-| --CHR            | 22                             | Chromosome to be analyzed                                    |
-| --output_dir     | results/                       | Directory for storing the output files                       |
-| --output_name    | stroke_res_CHR22.txt           | Name of the output file                                      |
+### Output: Protein-Trait Association Results
 
+The output file contains the following columns:
 
-### Output: Protein-trait association
-Here’s how to interpret the results in `stroke_res_CHR22.txt`. The table below displays the first two lines of the output file, transposed for explanation:
+| Column | Description |
+|--------|-------------|
+| `protein` | Protein name/identifier |
+| `beta` | Estimated effect size (recommended for interpretation) |
+| `se` | Standard error of the effect size |
+| `p` | P-value for the protein-trait association |
+| `model_r2` | Predictive R² of the protein expression model |
+| `n_snps` | Number of SNPs used in the protein prediction model |
+| `MHC` | Indicator for MHC region (major histocompatibility complex) |
 
-| Column        | Value    | Explain                                                      |
-| ------------- | -------- | ------------------------------------------------------------ |
-| chr           | 22       | Chrosome ID                                                  |
-| p0            | 17659680 | Gene start                                                   |
-| p1            | 17739125 | Gene end                                                     |
-| gene          | ADA2     | Protein name                                                 |
-| R2            | 0.044    | Predicitve R2 provided by weights                            |
-| Zcore.classic | -0.866   | Z score using standard PWAS method                           |
-| p.classic     | 0.386    | Standard PWAS p value                                        |
-| beta_BLISS    | -0.003   | Estimated effect size from BLISS (recommend using this)      |
-| se_BLISS      | 0.003    | Standard error of effect size from BLISS (recommend using this) |
-| p_BLISS       | 0.386    | BLISS p value (recommend using this)                         |
-| n_used_snp    | 118      | Number of SNPs used in PWAS models                           |
-| n_snp         | 151      | Total number of SNPs in PWAS models                          |
+When `--output_augmented TRUE` is specified, additional columns are included:
 
+- `filename`: Model filename used
+- `chromosome`: Chromosome location
+- `start`: Gene start position
+- `end`: Gene end position  
+- `q`: FDR-adjusted p-values
 
-## Protein expression imputation models
+## Available Protein Expression Imputation Models
 
-We offer protein expression imputation models across various platforms and ancestries. The table below summarizes the available models. We provide all available models we have trained to advocate open science, however we only recommend using models with estimated hertibability exceeding 0.01 as analyzed in our manuscript:
+We provide protein expression imputation models across various platforms and ancestries:
 
-| Name          | Platform | Method                | Ancestry         | Training Sample size | \# proteins |
-| ------------- | -------- | --------------------- | ---------------- | -------------------- | ----------- |
-| UKB           | OLink    | BLISS                 | EUR              | 46,066               | 1,412       |
-| ARIC          | SomaScan | BLISS                 | EUR              | 7,213                | 4,423       |
-| deCODE        | SomaScan | BLISS                 | EUR              | 35,559               | 4,428       |
-| UKB_AFR_std   | OLink    | Standard PWAS         | AFR              | 1,171                | 1,412       |
-| UKB_AFR_super | OLink    | BLISS (Super Learner) | AFR              | 1,171                | 1,412       |
-| ARIC_AA       | SomaScan | BLISS                 | African American | 1,871                | 4,415       |
-| UKB_ASN_std   | OLink    | Standard PWAS         | Asian            | 914                  | 1,412       |
-| UKB_ASN_super | OLink    | BLISS (Super Learner) | Asian            | 914                  | 1,412       |
+| Model Name | Platform | Method | Ancestry | Training Sample Size | # Proteins |
+|------------|----------|---------|----------|---------------------|------------|
+| UKBPPP_EUR | OLink | BLISS | European | 46,066 | 1,412 |
+| ARIC | SomaScan | BLISS | European | 7,213 | 4,423 |
+| deCODE | SomaScan | BLISS | European | 35,559 | 4,428 |
+| UKB_AFR_std | OLink | Standard PWAS | African | 1,171 | 1,412 |
+| UKB_AFR_super | OLink | BLISS (Super Learner) | African | 1,171 | 1,412 |
+| ARIC_AA | SomaScan | BLISS | African American | 1,871 | 4,415 |
+| UKB_ASN_std | OLink | Standard PWAS | Asian | 914 | 1,412 |
+| UKB_ASN_super | OLink | BLISS (Super Learner) | Asian | 914 | 1,412 |
 
+**Recommendation:** We recommend using models with estimated heritability exceeding 0.01 as analyzed in our manuscript.
 
+## Data Preprocessing
+
+### Quality Control Recommendations
+
+We strongly advise using quality control tools before running the main analysis:
+
+1. **Use our QC tool:** Run `APSS.R` for interactive quality control
+2. **Check allele specifications:** Ensure A1 and A2 are correctly specified
+3. **Verify Z-score calculations:** If Z-scores are missing, they can be calculated as Z = BETA/SE
+4. **Handle missing data:** Remove or impute missing values appropriately
+
+### Z-Score Calculation
+
+If your GWAS summary statistics include BETA and SE columns but lack Z-scores:
+
+```r
+# Z-score calculation
+Z = BETA / SE
+
+# For odds ratios, first convert to log scale
+BETA = log(OR)
+Z = BETA / SE
+```
+
+## Advanced Usage
+
+### Batch Processing Multiple Traits
+
+For analyzing multiple traits, you can create a shell script:
+
+```bash
+#!/bin/bash
+traits=("trait1" "trait2" "trait3")
+for trait in "${traits[@]}"; do
+    Rscript BLISS_Association.R \
+      --path_sumstats "data/${trait}_gwas.sumstats" \
+      --model UKBPPP_EUR \
+      --output_dir "results/" \
+      --output_name "${trait}_results.txt" \
+      --output_augmented TRUE
+done
+```
+
+### Progress Monitoring
+
+The script includes a progress bar and will display:
+- Current processing status
+- Number of proteins processed
+- Completion summary
+
+### File State Management
+
+The script automatically handles interrupted runs:
+- Creates `.finished` files upon completion
+- Can resume from interruption points
+- Use `--clean_slate TRUE` to start fresh
 
 ## FAQ
 
-For any questions, please raise an issue on GitHub (recommended) or email us. We typically respond within a few hours.
+**Q: How do I calculate Z-scores from my GWAS summary statistics?**
+A: Use our `APSS.R` script for preprocessing, or calculate manually: Z = BETA/SE. For odds ratios, first take the natural logarithm: BETA = log(OR), then Z = BETA/SE.
 
+**Q: What if I get "model not found" errors?**
+A: Ensure model files are properly downloaded and placed in the `model/` directory. Each model should have a corresponding `.manifest` file.
 
+**Q: Why do I get warnings about replacement elements?**
+A: This typically indicates improperly formatted GWAS summary data. Use `APSS.R` to preprocess your data for robust results.
 
-1. **How Can Z-Scores Be Calculated Using a Downloaded GWAS Summary Statistics File?**
+**Q: Can I analyze a specific chromosome only?**
+A: Yes, use the `--chr` parameter to specify a single chromosome (1-22). Omit this parameter to analyze all chromosomes.
 
-   We offer a script called `APSS.R` designed to preprocess the GWAS summary statistics file. If the file includes both the effect size (BETA) and standard error (SE), you can calculate the Z-score using the formula $Z = BETA/SE$. Should the file provide odds ratios, the effect size can be determined by taking the natural logarithm of the odds ratio. Additionally, our primary script `BLISS_Association.R` incorporates these calculations to ensure smooth execution of the analysis.
+**Q: How do I interpret the MHC column?**
+A: The MHC column indicates whether the protein/gene is located in the major histocompatibility complex region, which may require special consideration due to its unique linkage disequilibrium patterns.
 
-2. **How to deal with the error message: Currently, we provide the following models: ARIC, ARIC_AA, deCODE, UKB, UKB_AFR_std, UKB_AFR_super, UKB_ASN_std, UKB_ASN_super. Please specify your choice for weights_models by selecting one of these available options"**
+**Q: What's the difference between classic and alternative methods?**
+A: The script implements both standard PWAS and the improved BLISS method. The main output columns (beta, se, p) represent the recommended BLISS results.
 
-   If you do specify the weights_models to one of the above models we provided, please make sure there is no additional lines between each option when running  `Rscript BLISS_Association.R` to make sure that R read every option correctly.
+## Troubleshooting
 
-3. **Why I got the warnings like "replacement element 1 has 2 row to replace 1 rows?"**
+**Common Issues:**
 
-   This is becuase the GWAS summary data have not been properly processed. Please use `APSS.R` to pre-process the GWAS summary data to make the results robustly.
+1. **File path errors:** Ensure all file paths are correct and files exist
+2. **Memory issues:** For large datasets, consider processing chromosome by chromosome
+3. **Column naming:** Verify that input files use exact column names (case-sensitive)
+4. **Sample size:** Provide sample size via `--n` if not available in the N column
 
+## Citation
 
+If you find our resources helpful, please cite:
 
+**[Large-scale imputation models for multi-ancestry proteome-wide association analysis](https://doi.org/10.1101/2023.10.05.561120)**, bioRxiv
 
+## License
 
-
-### Change log
-
-10-03-2023: First version release
-
-### Citation
-
-If you find our resources helpful, please cite the following manuscript:
-
-**[Large-scale imputation models for multi-ancestry proteome-wide association analysis](https://doi.org/10.1101/2023.10.05.561120)**, Biorxiv
-
-
-
-### License
 This work is licensed under the [CC BY-NC-ND 4.0 DEED](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+
+## Support
+
+For questions or issues:
+- **GitHub Issues:** [Recommended] Submit issues on our GitHub repository
+- **Email:** Contact us directly
+
+We typically respond within a few hours.
+
+---
+
+### Change Log
+
+- **10-03-2023:** First version release
+- **Latest:** Updated parameter structure and enhanced functionality
