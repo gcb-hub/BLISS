@@ -42,7 +42,7 @@ We also strongly recommend including one optional column:
 
 **Note:** Column names are case-sensitive. Make sure your input file uses the exact column names listed above.
 
-### Running BLISS Analysis
+### Running BLISS association analysis
 
 To identify protein-trait associations, use the main analysis script. Here's an example using stroke GWAS data (included in our S3 bucket):
 
