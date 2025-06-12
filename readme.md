@@ -44,7 +44,7 @@ We also strongly recommend including one optional column:
 
 ### Running BLISS Analysis
 
-To identify protein-trait associations, use the main analysis script. Here's an example using stroke GWAS data:
+To identify protein-trait associations, use the main analysis script. Here's an example using stroke GWAS data (included in our S3 bucket):
 
 ```bash
 Rscript BLISS_Association.R \
