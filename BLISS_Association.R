@@ -369,6 +369,7 @@ for (j in index.current:nrow(manifest)) {
     if (file %>% file.exists()) {
         load(file)
 
+        matrix.LD <- rebuild_from_upper(matrix.LD)
         if (all(CHECKED$alpha == 0)) {
             CHECKED$alpha <- rep(1 / length(CHECKED$alpha), length(CHECKED$alpha))
         }
