@@ -347,7 +347,6 @@ if (nrow(file.current) == 0) {
     index.current <- which(manifest$protein == file.current$protein[nrow(file.current)]) + 1
 }
 
-
 # Setup progress bar
 total <- nrow(manifest)
 to_do <- total - (index.current - 1)
@@ -369,7 +368,7 @@ for (j in index.current:nrow(manifest)) {
     if (file %>% file.exists()) {
         load(file)
 
-        matrix.LD <- rebuild_from_upper(matrix.LD)
+        matrix.LD <- rebuild_from_upper(matrix.LD, nvars = nrow(ss)
         if (all(CHECKED$alpha == 0)) {
             CHECKED$alpha <- rep(1 / length(CHECKED$alpha), length(CHECKED$alpha))
         }
