@@ -1,10 +1,12 @@
 # Install required packages and load libraries
+cat("Starting PWAS analysis...\n")
 options(repos = c(CRAN = "https://cloud.r-project.org/"))
 
 package <- c("data.table", "dplyr", "optparse")
 package <- package[!(package %in% installed.packages()[, "Package"])]
 
 if (length(package)) {
+    cat("Installing packages:", paste(package, collapse = ", "), "\n")
     suppressMessages(install.packages(package, quiet = TRUE))
 }
 
@@ -46,6 +48,9 @@ output.dir  <- opt$output_dir
 output.name <- opt$output_name
 output.aug  <- opt$output_augmented
 clean.slate <- opt$clean_slate
+
+cat("Arguments: model =", model, "| chr =", ifelse(is.na(CHR), "1-22", paste(CHR, collapse = ",")), 
+    "| output =", output.dir, "/", output.name, "\n")
 
 # Fix CHR
 if (is.na(CHR)) {
@@ -298,6 +303,8 @@ manifest <- paste0("model/", model, "/.manifest") %>%
     fread(., data.table = FALSE) %>%
     filter(chromosome %in% CHR)
 
+cat("Found", nrow(manifest), "protein models for chromosome(s):", paste(CHR, collapse = ", "), "\n")
+
 if (nrow(manifest) == 0) {
     stop(paste0("No protein models found for chromosome(s): ", paste(CHR, collapse = ", "), "."))
 }
@@ -321,13 +328,17 @@ if (is.na(n.sumstats)) {
 
 # Read the summary statistics file
 # Be cautious with na.omit() as it may remove too many rows unnecessarily
+cat("Loading summary statistics...\n")
 ss.pheno <- fread(ss.path, data.table = FALSE, header = TRUE, showProgress = FALSE)
 ss.pheno <- ss.pheno[ss.pheno$CHR %in% CHR, ] %>%
     na.omit() %>%
     filter(!duplicated(SNP))
 
+cat("Loaded", nrow(ss.pheno), "SNPs after filtering\n")
+
 if (is.na(n.sumstats)) {
     n.sumstats <- median(ss.pheno$N, na.rm = TRUE)
+    cat("Sample size:", n.sumstats, "\n")
 }
 
 ##################
@@ -372,11 +383,13 @@ if (nrow(file.current) == 0) {
     index.current <- 1
 } else {
     index.current <- which(manifest$protein == file.current$protein[nrow(file.current)]) + 1
+    cat("Resuming from protein", index.current, "\n")
 }
 
 # Setup progress bar
 total <- nrow(manifest)
 to_do <- total - (index.current - 1)
+cat("Processing", to_do, "proteins...\n")
 pb <- txtProgressBar(min = 0, max = to_do, style = 3)
 
 # Main iteration
@@ -413,7 +426,10 @@ for (j in index.current:nrow(manifest)) {
                     n.ref       = manifest$n_ref[j]
                 )
             },
-            error = function(e) {cat("ERROR :", conditionMessage(e), "\n")}
+            error = function(e) {
+                cat("\nError processing", manifest$protein[j], ":", conditionMessage(e), "\n")
+                temp <<- rep(NA, 6)
+            }
         )
 
         update[2:4] <- temp[4:6]
@@ -437,6 +453,7 @@ cat(sprintf("\nCompleted processing %d proteins!\n", to_do))
 
 # Augment results if requested
 if (output.aug) {
+    cat("Augmenting results...\n")
     # Read the final results and augment with additional information from the manifest
     result <- fread(destination, data.table = FALSE, header = TRUE)
 
@@ -458,3 +475,4 @@ if (output.aug) {
 
 # Rename the intermediate file to "finished"
 MarkFinished(destination)
+cat("Analysis complete! Results saved to:", paste0(destination, ".finished"), "\n")
