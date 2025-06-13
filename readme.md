@@ -21,7 +21,8 @@ cd BLISS
 
 # Download model
 mkdir model && cd model
-wget https://huggingface.co/datasets/SharpDressedMan/BLISS-model/resolve/main/UKBPPP_EUR.zip && unzip UKBPPP_EUR.zip
+wget https://huggingface.co/datasets/SharpDressedMan/BLISS-model/resolve/main/UKBPPP_EUR.zip
+unzip UKBPPP_EUR.zip
 cd ..
 
 # Download example GWAS data
