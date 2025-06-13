@@ -19,7 +19,7 @@ Download our pre-constructed model and LD matrix files from our S3 bucket and pl
 ```bash
 cd BLISS
 
-wget S3-bucket && unzip model.zip
+wget [S3-bucket](https://huggingface.co/datasets/SharpDressedMan/BLISS-model/resolve/main/UKBPPP_EUR.zip) && unzip model.zip
 ```
 
 ## Typical analysis and outputs
