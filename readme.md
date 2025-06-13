@@ -171,6 +171,15 @@ A: Yes, use the `--chr` parameter to specify a single chromosome (1-22). Omit th
 
 A: The MHC column indicates whether the protein/gene is located in the major histocompatibility complex region, which may require special consideration due to its unique linkage disequilibrium patterns.
 
+**Q: Can I extract the LD matrices?**
+
+A: Load the model file of interest and use the ``recover_corr_matrix`` function from ``BLISS_Association.R``.
+
+```R
+load("PROTEIN_OF_INTEREST.RData")
+matrix.LD <- recover_corr_matrix(matrix.LD)
+```
+
 ## Troubleshooting
 
 **Common Issues:**
