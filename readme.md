@@ -14,12 +14,14 @@ git clone https://github.com/gcb-hub/BLISS.git
 ```
 
 ### Model files
-Download our pre-constructed model and LD matrix files from our S3 bucket and place them in the appropriate directory:
+Download our pre-constructed model and LD matrix files from our Huggingface repo and place them in the appropriate directory:
 
 ```bash
 cd BLISS
 
-wget [S3-bucket](https://huggingface.co/datasets/SharpDressedMan/BLISS-model/resolve/main/UKBPPP_EUR.zip) && unzip model.zip
+mkdir model && cd model
+wget https://huggingface.co/datasets/SharpDressedMan/BLISS-model/resolve/main/UKBPPP_EUR.zip && unzip UKBPPP_EUR.zip
+cd ..
 ```
 
 ## Typical analysis and outputs
