@@ -1,4 +1,6 @@
 # Install required packages and load libraries
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
+
 package <- c("data.table", "dplyr", "optparse")
 package <- package[!(package %in% installed.packages()[, "Package"])]
 
