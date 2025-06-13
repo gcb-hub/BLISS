@@ -21,7 +21,7 @@ cd BLISS
 
 # Download model
 mkdir model && cd model
-wget https://huggingface.co/datasets/SharpDressedMan/BLISS-model/resolve/main/UKBPPP_EUR.zip
+wget https://huggingface.co/datasets/chongwulab/BLISS-models/resolve/main/UKBPPP_EUR.zip
 unzip UKBPPP_EUR.zip
 cd ..
 
@@ -29,7 +29,7 @@ cd ..
 wget https://gcbhub.s3.us-east-2.amazonaws.com/example.zip && unzip example.zip
 ```
 
-For more models, please refer to our [🤗 Hugging Face repo page](https://huggingface.co/datasets/SharpDressedMan/BLISS-model/tree/main) and get the needed download links. 
+For more models, please refer to our [🤗 Hugging Face repo page](https://huggingface.co/datasets/chongwulab/BLISS-models) and get the needed download links. 
 ## Typical analysis and outputs
 
 BLISS performs analyses by combining user-specified protein expression prediction models with GWAS summary statistics to identify significant protein-trait associations. We offer multiple pre-built sets of protein imputation models tailored for various proteomic platforms and ancestries. Users only need to provide GWAS summary data and specify the imputation models to be used.
