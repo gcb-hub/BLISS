@@ -197,6 +197,25 @@ TestAssociation <- function(sumstats, weight, SS.original, matrix.LD, n.sumstats
     return(output)
 }
 
+rebuild_from_upper <- function(upper_vals, n_vars, var_names = NULL) {
+    # Validate input length
+    if (length(upper_vals) != n_vars * (n_vars - 1) / 2) {
+      stop("Incorrect number of upper triangle values")
+    }
+
+    # Create and fill matrix
+    mat <- matrix(0, n_vars, n_vars)
+    mat[upper.tri(mat)] <- upper_vals
+    mat <- mat + t(mat)  # Add transpose to fill lower triangle
+
+    # Add names if provided
+    if (!is.null(var_names)) {
+      rownames(mat) <- colnames(mat) <- var_names
+    }
+
+    return(mat)
+}
+
 ########################################
 # Functions used to handle file states #
 ########################################
