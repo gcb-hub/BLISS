@@ -197,23 +197,48 @@ TestAssociation <- function(sumstats, weight, SS.original, matrix.LD, n.sumstats
     return(output)
 }
 
-rebuild_from_upper <- function(upper_vals, n_vars, var_names = NULL) {
-    # Validate input length
-    if (length(upper_vals) != n_vars * (n_vars - 1) / 2) {
-      stop("Incorrect number of upper triangle values")
+recover_corr_matrix <- function(stored_data) {
+    # Input validation
+    if (!is.list(stored_data)) {
+        stop("Input must be a list (output from store_upper_triangle)")
     }
 
-    # Create and fill matrix
-    mat <- matrix(0, n_vars, n_vars)
-    mat[upper.tri(mat)] <- upper_vals
-    mat <- mat + t(mat)  # Add transpose to fill lower triangle
-
-    # Add names if provided
-    if (!is.null(var_names)) {
-      rownames(mat) <- colnames(mat) <- var_names
+    required_names <- c("upper_values", "n_vars", "var_names")
+    if (!all(required_names %in% names(stored_data))) {
+        stop("Input list must contain: upper_values, n_vars, var_names")
     }
 
-    return(mat)
+    # Extract components
+    upper_values <- stored_data$upper_values
+    n_vars <- stored_data$n_vars
+    var_names <- stored_data$var_names
+
+    # Validate dimensions
+    expected_length <- n_vars * (n_vars - 1) / 2
+    if (length(upper_values) != expected_length) {
+        stop(paste("Expected", expected_length, "upper triangle values for", 
+                  n_vars, "variables, but got", length(upper_values)))
+    }
+
+    # Initialize matrix with zeros
+    corr_matrix <- matrix(0, nrow = n_vars, ncol = n_vars)
+
+    # Fill upper triangle
+    corr_matrix[upper.tri(corr_matrix)] <- upper_values
+
+    # Make symmetric by copying upper triangle to lower triangle
+    corr_matrix[lower.tri(corr_matrix)] <- t(corr_matrix)[lower.tri(corr_matrix)]
+
+    # Set diagonal to 1 (assuming correlation matrix)
+    diag(corr_matrix) <- 1
+
+    # Add variable names if available
+    if (!is.null(var_names) && length(var_names) == n_vars) {
+        rownames(corr_matrix) <- var_names
+        colnames(corr_matrix) <- var_names
+    }
+
+    return(corr_matrix)
 }
 
 ########################################
@@ -368,7 +393,7 @@ for (j in index.current:nrow(manifest)) {
     if (file %>% file.exists()) {
         load(file)
 
-        matrix.LD <- rebuild_from_upper(matrix.LD, nvars = nrow(ss)
+        matrix.LD <- recover_corr_matrix(matrix.LD)
         if (all(CHECKED$alpha == 0)) {
             CHECKED$alpha <- rep(1 / length(CHECKED$alpha), length(CHECKED$alpha))
         }
