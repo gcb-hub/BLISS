@@ -33,6 +33,8 @@ option_list <- list(
     ),
     make_option("--output_augmented", type = "logical", default = FALSE, action = "store", help = "Whether to output the augmented results. Default is FALSE."
     ),
+    make_option("--output_twas_fusion", type = "logical", default = FALSE, action = "store", help = "Format the final output like TWAS-fusion. Default is FALSE."
+    ),
     make_option("--clean_slate", type = "logical", default = FALSE, action = "store", help = "Whether to clean the slate and remove existing results before running the analysis. Default is FALSE."
     )
 )
@@ -47,10 +49,11 @@ CHR         <- opt$chr
 output.dir  <- opt$output_dir
 output.name <- opt$output_name
 output.aug  <- opt$output_augmented
+output.tf   <- opt$output_twas_fusion
 clean.slate <- opt$clean_slate
 
 cat("Arguments: model =", model, "| chr =", ifelse(is.na(CHR), "1-22", paste(CHR, collapse = ",")), 
-    "| output =", output.dir, "/", output.name, "\n")
+    "| output =", output.dir, output.name, "\n")
 
 # Fix CHR
 if (is.na(CHR)) {
@@ -194,11 +197,15 @@ TestAssociation <- function(sumstats, weight, SS.original, matrix.LD, n.sumstats
         out <- c(NA, NA, NA)
     }
 
-    output <- c(z.twas, sqrt(r2.twas), p.classic, out)
+    BEST.ID <- sumstats.temp$SNP[which.max(abs(sumstats.temp$Z))[1]]
+    BEST.Z  <- sumstats.temp$Z[which.max(abs(sumstats.temp$Z))[1]]
+
+    output <- c(z.twas, sqrt(r2.twas), p.classic, out, BEST.ID, BEST.Z)
 
     names(output) <- c(
         "beta.classic","se.classic", "p.classic",
-        "beta_alt", "se_alt", "p_alt"
+        "beta_alt", "se_alt", "p_alt",
+        "BEST.GWAS.ID", "BEST.GWAS.Z"
     )
 
     return(output)
@@ -351,9 +358,20 @@ dir.create(output.dir, recursive = TRUE, showWarnings = FALSE)
 destination <- file.path(output.dir, output.name)
 
 # Header
-header <- c(
-    "protein", "beta", "se", "p", "model_r2", "n_snps", "MHC"
-)
+if (!output.tf) {
+    header <- c(
+        "protein", "beta", "se", "p", "model_r2", "n_snps", "MHC"
+    )
+} else {
+    header <- c(
+        "FILE", "ID", "CHR", "P0", "P1", "HSQ", "BEST.GWAS.ID", "BEST.GWAS.Z",
+        "EQTL.ID", "EQTL.R2", "EQTL.Z", "EQTL.GWAS.Z", "NSNP", "MODEL", "MODELCV.R2",
+        "MODELCV.PV", "TWAS.Z", "TWAS.P"
+    )
+
+    output.aug <- FALSE
+}
+
 
 # Get state
 state.current <- GetState(destination)
@@ -436,6 +454,28 @@ for (j in index.current:nrow(manifest)) {
         update[5] <- mean(R2.PUMAS, na.rm = TRUE)
         update[6] <- length(weight)
         update[7] <- manifest$MHC[j]
+
+        if (output.tf) {
+            # Re-do update
+            update[1] <- file
+            update[2] <- manifest$protein[j]
+            update[3] <- manifest$chromosome[j]
+            update[4] <- manifest$start[j]
+            update[5] <- manifest$end[j]
+            update[6] <- mean(R2.PUMAS, na.rm = TRUE)
+            update[7] <- temp[7]
+            update[8] <- temp[8]
+            update[9] <- NA
+            update[10] <- NA
+            update[11] <- NA
+            update[12] <- NA
+            update[13] <- length(weight)
+            update[14] <- "BLISS"
+            update[15] <- NA
+            update[16] <- NA
+            update[17] <- as.numeric(temp[4]) / as.numeric(temp[5])
+            update[18] <- temp[6]
+        }
     }
 
     # Update
