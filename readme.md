@@ -63,6 +63,7 @@ Rscript BLISS_Association.R \
   --output_dir results/ \
   --output_name result_RandomGWAS_chr12.txt \
   --output_augmented TRUE \
+  --output_twas_fusion FALSE \
   --clean_slate FALSE \
 ```
 
@@ -77,6 +78,7 @@ Rscript BLISS_Association.R \
 | `output_dir` | string | Directory to store output files | Current directory |
 | `output_name` | string | Name of the output file | PWAS_results |
 | `output_augmented` | logical | Output augmented results with additional annotations | FALSE |
+| `output_twas_fusion` | logical | TWAS-FUSION-style output | FALSE |
 | `clean_slate` | logical | Discard unfinished result and start fresh? | FALSE |
 
 ### Output: Protein-trait association results
