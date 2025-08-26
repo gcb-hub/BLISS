@@ -215,4 +215,8 @@ We typically respond within a few hours.
 ### Change Log
 
 - **10-03-2023:** First version release
-- **Latest:** Updated parameter structure and enhanced functionality
+- **07-27-2025:**
+  Added multi-ancestry support with UKBPPP_AFR and UKBPPP_ASN models.
+  Enhanced parameter structure with augmented output options and TWAS-FUSION compatibility.
+  Added deCODE (SomaScan) and ARIC models for expanded platform coverage.
+  Documentation update - Added LD matrix extraction guide, improved FAQ section, and clarified QC recommendations
