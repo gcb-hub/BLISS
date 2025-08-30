@@ -54,6 +54,8 @@ Z = BETA / SE
 BETA = log(OR)
 Z = BETA / SE
 ```
+
+Tips: let ``APSS.R`` handle this, if you are not 100% sure what columns should be used to compute $Z$-score.
 ## Typical analysis and outputs
 
 BLISS performs analyses by combining user-specified protein expression prediction models with GWAS summary statistics to identify significant protein-trait associations. We offer multiple pre-built sets of protein imputation models tailored for various proteomic platforms and ancestries. Users only need to provide GWAS summary data and specify the imputation models to be used.
