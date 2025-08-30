@@ -60,6 +60,7 @@ BLISS performs analyses by combining user-specified protein expression predictio
 
 ### Input: GWAS summary statistics
 
+<a id="column-naming-rules"></a>
 GWAS summary statistics must be formatted as a flat file with the following mandatory columns:
 
 1. **CHR** - chromosome ID
@@ -89,7 +90,7 @@ We strongly advise using quality control tools before running the main analysis:
 
 ### How to use `APSS` function
 
-Generally, rename the mandatory column **exactly as [stated above](#Input: GWAS summary statistics)** and use y/n to respond to the prompted questions as needed. For non-mandatory columns, you can name them as you like, as long as the names are reasonable.
+Generally, rename the mandatory column **exactly as [stated above](#column-naming-rules)** and use y/n to respond to the prompted questions as needed. For non-mandatory columns, you can name them as you like, as long as the names are reasonable.
 
 ```r
 # First source the function
