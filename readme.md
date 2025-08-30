@@ -155,7 +155,7 @@ When `--output_augmented TRUE` is specified, additional columns are included:
 
 We provide protein expression imputation models across various platforms and ancestries:
 
-| Model Name | Platform | Method | Ancestry | Training Sample Size | Number of proteins | Number of proteins with _cis_-$h^2$ > 0.01 |
+| Model Name | Platform | Method | Ancestry | Training Sample Size | Number of proteins | Number of proteins with _cis_-h<sup>2</sup> > 0.01 |
 |------------|----------|---------|----------|---------------------|--------------------|--------------------------------------------|
 | UKBPPP_EUR | Olink | BLISS | European | 49,341 | 2,808 | 1,407 |
 | UKBPPP_AFR | Olink | BLISS | African | 1,181 | 2,790 | 916 |
