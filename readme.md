@@ -86,6 +86,29 @@ We strongly advise using quality control tools before running the main analysis:
 4. **Handle missing data:** Remove or impute missing values appropriately
 
 ⚠️ Note: Although `APSS.r` offers an option to keep only HapMap3 SNPs, we **DO NOT** recommend you using that option. Since BLISS models were constructed using more than just HapMap3 SNPs, not restricting the analysis to only HapMap3 SNPs is generally the better approach.
+
+### How to use `APSS` function
+
+```r
+# First source the function
+source("APSS.R")
+
+# An example of using APSS interactively
+APSS(
+    directory.working = YOUR_WORKING_DIR,
+    filename = "RandomGWAS_chr12.sumstats",
+    do.return = FALSE,
+    BIG = 2
+)
+```
+
+| Parameter | Type | Description | Default |
+|-----------|------|-------------|---------|
+| `directory.working` | string | Path to the GWAS summary statistics file | Required |
+| `filename` | string | Name of the GWAS summary statistics file | Required |
+| `do.return` | boolean | return the processed GWAS summary statistics file or not? | FALSE |
+| `BIG` | numeric | If the GWAS summary statistics is bigger than "BIG" Gb, APSS will do an exploratory read first to save memory | 2 |
+
 ### Z-Score calculation
 
 If your GWAS summary statistics include BETA and SE columns but lack Z-scores:
