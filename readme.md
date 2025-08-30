@@ -30,6 +30,30 @@ wget https://gcbhub.s3.us-east-2.amazonaws.com/example.zip && unzip example.zip
 ```
 
 For more models, please refer to our [🤗 Hugging Face repo page](https://huggingface.co/datasets/chongwulab/BLISS-models) and get the needed download links. 
+
+## Data preprocessing
+
+### Quality control recommendations
+
+We strongly advise using quality control tools before running the main analysis:
+
+1. **Use our QC tool:** Run `APSS.R` for interactive quality control
+2. **Check allele specifications:** Ensure A1 and A2 are correctly specified
+3. **Verify Z-score calculations:** If Z-scores are missing, they can be calculated as Z = BETA/SE
+4. **Handle missing data:** Remove or impute missing values appropriately
+
+### Z-Score calculation
+
+If your GWAS summary statistics include BETA and SE columns but lack Z-scores:
+
+```r
+# Z-score calculation
+Z = BETA / SE
+
+# For odds ratios, first convert to log scale
+BETA = log(OR)
+Z = BETA / SE
+```
 ## Typical analysis and outputs
 
 BLISS performs analyses by combining user-specified protein expression prediction models with GWAS summary statistics to identify significant protein-trait associations. We offer multiple pre-built sets of protein imputation models tailored for various proteomic platforms and ancestries. Users only need to provide GWAS summary data and specify the imputation models to be used.
@@ -49,6 +73,30 @@ We also strongly recommend including one optional column:
 6. **N** - sample size (discovery stage sample size, not maximum sample size)
 
 **Note:** Column names are case-sensitive. Make sure your input file uses the exact column names listed above.
+
+## Data preprocessing
+
+### Quality control recommendations
+
+We strongly advise using quality control tools before running the main analysis:
+
+1. **Use our QC tool:** Run `APSS.R` for interactive quality control
+2. **Check allele specifications:** Ensure A1 and A2 are correctly specified
+3. **Verify Z-score calculations:** If Z-scores are missing, they can be calculated as Z = BETA/SE
+4. **Handle missing data:** Remove or impute missing values appropriately
+
+### Z-Score calculation
+
+If your GWAS summary statistics include BETA and SE columns but lack Z-scores:
+
+```r
+# Z-score calculation
+Z = BETA / SE
+
+# For odds ratios, first convert to log scale
+BETA = log(OR)
+Z = BETA / SE
+```
 
 ### Running BLISS association analysis
 
@@ -118,30 +166,6 @@ We provide protein expression imputation models across various platforms and anc
 
 
 **Recommendation:** Although we are providing you with results for all the available proteins, we recommend using models **with estimated heritability exceeding 0.01 as analyzed in our manuscript**.
-
-## Data preprocessing
-
-### Quality control recommendations
-
-We strongly advise using quality control tools before running the main analysis:
-
-1. **Use our QC tool:** Run `APSS.R` for interactive quality control
-2. **Check allele specifications:** Ensure A1 and A2 are correctly specified
-3. **Verify Z-score calculations:** If Z-scores are missing, they can be calculated as Z = BETA/SE
-4. **Handle missing data:** Remove or impute missing values appropriately
-
-### Z-Score calculation
-
-If your GWAS summary statistics include BETA and SE columns but lack Z-scores:
-
-```r
-# Z-score calculation
-Z = BETA / SE
-
-# For odds ratios, first convert to log scale
-BETA = log(OR)
-Z = BETA / SE
-```
 
 ## Advanced usage
 
