@@ -280,26 +280,26 @@ APSS <- function(directory.working, filename, auto = FALSE, do.return = FALSE, B
         cat(separator, sep = "\n")
     }
 
-    # # Compare raw sumstats with the "list" (if provided)
-    # do.hapmap3 <- readline(prompt = paste0("Subset the dataset by HapMap3? Y/N "))
-    # cat(separator, sep = "\n")
+    # Compare raw sumstats with the "list" (if provided)
+    do.hapmap3 <- readline(prompt = paste0("Subset the dataset by HapMap3? Y/N "))
+    cat(separator, sep = "\n")
 
-    # if (do.hapmap3 == "Y") {
-    #     if (!file.exists("w_hm3.snplist.bz2")) {
-    #         cat("I can't find HapMap3 list file and will try to download one from the Internet.", sep = "\n")
-    #         cat(separator, sep = "\n")
-    #         download.file("https://data.broadinstitute.org/alkesgroup/LDSCORE/w_hm3.snplist.bz2", destfile = "w_hm3.snplist.bz2", quiet = TRUE)
-    #     }
-    #     list.hapmap3 <- as.data.frame(fread("w_hm3.snplist.bz2"))
+    if (do.hapmap3 == "Y") {
+        if (!file.exists("w_hm3.snplist.bz2")) {
+            cat("I can't find HapMap3 list file and will try to download one from the Internet.", sep = "\n")
+            cat(separator, sep = "\n")
+            download.file("https://gcbhub.s3.us-east-2.amazonaws.com/w_hm3.snplist", destfile = "w_hm3.snplist", quiet = TRUE)
+        }
+        list.hapmap3 <- as.data.frame(fread("w_hm3.snplist"))
 
-    #     n.start <- nrow(raw)
+        n.start <- nrow(raw)
 
-    #     raw <- raw[raw$SNP %in% list.hapmap3$SNP, ]
+        raw <- raw[raw$SNP %in% list.hapmap3$SNP, ]
 
-    #     n.end <- nrow(raw)
-    #     cat(paste0(n.start - n.end, " rows removed!"), sep = "\n")
-    #     cat(separator, sep = "\n")
-    # }
+        n.end <- nrow(raw)
+        cat(paste0(n.start - n.end, " rows removed!"), sep = "\n")
+        cat(separator, sep = "\n")
+    }
 
     # Drop rows with MAF<0.01
     if ("MAF" %in% header.inner) {
@@ -500,4 +500,5 @@ APSS <- function(directory.working, filename, auto = FALSE, do.return = FALSE, B
         return(raw)
     }
 }
+
 
