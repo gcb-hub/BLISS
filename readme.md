@@ -56,6 +56,7 @@ Z = BETA / SE
 ```
 
 Tips: let ``APSS.R`` handle this, if you are not 100% sure what columns should be used to compute $Z$-score.
+
 ## Typical analysis and outputs
 
 BLISS performs analyses by combining user-specified protein expression prediction models with GWAS summary statistics to identify significant protein-trait associations. We offer multiple pre-built sets of protein imputation models tailored for various proteomic platforms and ancestries. Users only need to provide GWAS summary data and specify the imputation models to be used.
@@ -113,19 +114,6 @@ APSS(
 | `filename` | string | Name of the GWAS summary statistics file. | Required |
 | `do.return` | boolean | Return the processed GWAS summary statistics file or not? | FALSE |
 | `BIG` | numeric | If the GWAS summary statistics is bigger than ``BIG``Gb, APSS will do an exploratory read first to save memory. | 2 |
-
-### Z-Score calculation
-
-If your GWAS summary statistics include BETA and SE columns but lack Z-scores:
-
-```r
-# Z-score calculation
-Z = BETA / SE
-
-# For odds ratios, first convert to log scale
-BETA = log(OR)
-Z = BETA / SE
-```
 
 ### Running BLISS association analysis
 
