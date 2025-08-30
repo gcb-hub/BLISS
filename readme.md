@@ -89,6 +89,8 @@ We strongly advise using quality control tools before running the main analysis:
 
 ### How to use `APSS` function
 
+Generally, rename the mandatory column **exactly as [stated above](#Input: GWAS summary statistics)** and use y/n to respond to the prompted questions as needed. For non-mandatory columns, you can name them as you like, as long as the names are reasonable.
+
 ```r
 # First source the function
 source("APSS.R")
@@ -106,7 +108,7 @@ APSS(
 |-----------|------|-------------|---------|
 | `directory.working` | string | Path to the GWAS summary statistics file | Required |
 | `filename` | string | Name of the GWAS summary statistics file | Required |
-| `do.return` | boolean | return the processed GWAS summary statistics file or not? | FALSE |
+| `do.return` | boolean | Return the processed GWAS summary statistics file or not? | FALSE |
 | `BIG` | numeric | If the GWAS summary statistics is bigger than "BIG" Gb, APSS will do an exploratory read first to save memory | 2 |
 
 ### Z-Score calculation
