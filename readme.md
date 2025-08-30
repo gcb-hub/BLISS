@@ -107,10 +107,10 @@ APSS(
 
 | Parameter | Type | Description | Default |
 |-----------|------|-------------|---------|
-| `directory.working` | string | Path to the GWAS summary statistics file | Required |
-| `filename` | string | Name of the GWAS summary statistics file | Required |
+| `directory.working` | string | Path to the GWAS summary statistics file. | Required |
+| `filename` | string | Name of the GWAS summary statistics file. | Required |
 | `do.return` | boolean | Return the processed GWAS summary statistics file or not? | FALSE |
-| `BIG` | numeric | If the GWAS summary statistics is bigger than "BIG" Gb, APSS will do an exploratory read first to save memory | 2 |
+| `BIG` | numeric | If the GWAS summary statistics is bigger than ``BIG``Gb, APSS will do an exploratory read first to save memory. | 2 |
 
 ### Z-Score calculation
 
