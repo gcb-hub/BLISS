@@ -44,7 +44,7 @@ We strongly advise using quality control tools before running the main analysis:
 
 ### Z-Score calculation
 
-If your GWAS summary statistics include BETA and SE columns but lack Z-scores:
+If your GWAS summary statistics include BETA and SE columns but lack $Z$-scores:
 
 ```r
 # Z-score calculation
