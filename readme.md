@@ -117,7 +117,7 @@ APSS(
 
 ### Running BLISS association analysis
 
-To identify protein-trait associations, use the main analysis script. Here's an example using stroke GWAS data (included in our S3 bucket):
+To identify protein-trait associations, use the main analysis script. Here's an example using an example GWAS data (included in our S3 bucket, all numbers randomly generated):
 
 ```bash
 Rscript BLISS_Association.R \
