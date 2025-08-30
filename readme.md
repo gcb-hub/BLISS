@@ -88,7 +88,7 @@ We strongly advise using quality control tools before running the main analysis:
 3. **Verify Z-score calculations:** If Z-scores are missing, they can be calculated as Z = BETA/SE
 4. **Handle missing data:** Remove or impute missing values appropriately
 
-⚠️ Note: Although `APSS.r` offers an option to keep only HapMap3 SNPs, we **DO NOT** recommend you using that option. Since BLISS models were constructed using more than just HapMap3 SNPs, not restricting the analysis to only HapMap3 SNPs is generally the better approach.
+⚠️ Note: Although `APSS.R` offers an option to keep only HapMap3 SNPs, we **DO NOT** recommend you using that option. Since BLISS models were constructed using more than just HapMap3 SNPs, not restricting the analysis to only HapMap3 SNPs is generally the better approach.
 
 ### How to use `APSS` function
 
