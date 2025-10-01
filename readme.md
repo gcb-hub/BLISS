@@ -263,3 +263,6 @@ Added multi-ancestry support with UKBPPP_AFR and UKBPPP_ASN models.<br>
 Enhanced parameter structure with augmented output options and TWAS-FUSION compatibility.<br>
 Added deCODE (SomaScan) and ARIC models for expanded platform coverage.<br>
 Documentation update - Added LD matrix extraction guide, improved FAQ section, and clarified QC recommendations
+
+- **10-01-2025:**<br>
+Fixed a minor issue where an undefined object occurred in some cases.<br>
