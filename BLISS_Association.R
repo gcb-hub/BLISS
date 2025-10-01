@@ -163,10 +163,10 @@ TestAssociation <- function(sumstats, weight, SS.original, matrix.LD, n.sumstats
 
     # Remove strand ambiguous SNPs (if any)
     if (sum(!qc$keep) > 0) {
-        sumstats.temp <- sumstats.temp[keep, ]
-        SS.original   <- SS.original[keep, ]
-        weight        <- weight[keep]
-        matrix.LD     <- matrix.LD[keep, keep]
+        sumstats.temp <- sumstats.temp[qc$keep, ]
+        SS.original   <- SS.original[qc$keep, ]
+        weight        <- weight[qc$keep]
+        matrix.LD     <- matrix.LD[qc$keep, qc$keep]
     }
 
     ################
@@ -516,3 +516,4 @@ if (output.aug) {
 # Rename the intermediate file to "finished"
 MarkFinished(destination)
 cat("Analysis complete! Results saved to:", paste0(destination, ".finished"), "\n")
+
