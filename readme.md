@@ -19,9 +19,9 @@ Download our pre-constructed model and LD matrix files from our 🤗 Hugging Fac
 ```bash
 cd BLISS
 
-# Download model
+# Download model (v2 manifests include R2 and h2 columns required by --filter_by)
 mkdir model && cd model
-wget https://huggingface.co/datasets/chongwulab/BLISS-models/resolve/main/UKBPPP_EUR.zip
+wget https://huggingface.co/datasets/chongwulab/BLISS-models/resolve/v2/UKBPPP_EUR.zip
 unzip UKBPPP_EUR.zip
 cd ..
 
@@ -29,7 +29,7 @@ cd ..
 wget https://gcbhub.s3.us-east-2.amazonaws.com/example.zip && unzip example.zip
 ```
 
-For more models, please refer to our [🤗 Hugging Face repo page](https://huggingface.co/datasets/chongwulab/BLISS-models) and get the needed download links. 
+For more models, please refer to our [🤗 Hugging Face repo page](https://huggingface.co/datasets/chongwulab/BLISS-models/tree/v2) and get the needed download links. 
 
 ## Data preprocessing
 
@@ -130,6 +130,8 @@ Rscript BLISS_Association.R \
   --output_augmented TRUE \
   --output_twas_fusion FALSE \
   --clean_slate FALSE \
+  --filter_by h2 \
+  --threshold 0.01 \
 ```
 
 ### Parameters
@@ -145,6 +147,8 @@ Rscript BLISS_Association.R \
 | `output_augmented` | logical | Output augmented results with additional annotations | FALSE |
 | `output_twas_fusion` | logical | TWAS-FUSION-style output | FALSE |
 | `clean_slate` | logical | Discard unfinished result and start fresh? | FALSE |
+| `filter_by` | string | Manifest column used to filter proteins before analysis. One of `R2` (cross-validation predictive R²) or `h2` (cis-heritability). Omit to disable filtering. Requires v2 (or later) model files. | None |
+| `threshold` | numeric | Minimum value (0-1) for the `--filter_by` column. Proteins below this threshold are skipped. | 0 |
 
 ### Output: Protein-trait association results
 
@@ -182,7 +186,7 @@ We provide protein expression imputation models across various platforms and anc
 | ARIC_AA | SomaScan | BLISS | African American | 1,181 | 4,435 | 1,352 |
 
 
-**Recommendation:** Although we are providing you with results for all the available proteins, we recommend using models **with estimated heritability exceeding 0.01 as analyzed in our manuscript**.
+**Recommendation:** Although we are providing you with results for all the available proteins, we recommend using models **with estimated heritability exceeding 0.01 as analyzed in our manuscript**. This can be done at the command line with `--filter_by h2 --threshold 0.01`.
 
 ## Advanced usage
 
@@ -266,3 +270,6 @@ Documentation update - Added LD matrix extraction guide, improved FAQ section, a
 
 - **10-01-2025:**<br>
 Fixed a minor issue where an undefined object occurred in some cases.<br>
+
+- **05-25-2026:**<br>
+Added `--filter_by` and `--threshold` options to filter proteins by predictive R² or cis-heritability before running the analysis. Requires v2 (or later) model files, whose `.manifest` now ships with `R2` and `h2` columns. Older model files remain compatible when these new options are omitted.<br>

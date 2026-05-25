@@ -36,6 +36,10 @@ option_list <- list(
     make_option("--output_twas_fusion", type = "logical", default = FALSE, action = "store", help = "Format the final output like TWAS-fusion. Default is FALSE."
     ),
     make_option("--clean_slate", type = "logical", default = FALSE, action = "store", help = "Whether to clean the slate and remove existing results before running the analysis. Default is FALSE."
+    ),
+    make_option("--filter_by", type = "character", default = NA, action = "store", help = "Column to filter proteins by ('R2' or 'h2'). When unspecified, no filtering is applied."
+    ),
+    make_option("--threshold", type = "numeric", default = 0, action = "store", help = "Minimum value (0-1) for the --filter_by column. Proteins below this are excluded. Default 0."
     )
 )
 
@@ -51,6 +55,17 @@ output.name <- opt$output_name
 output.aug  <- opt$output_augmented
 output.tf   <- opt$output_twas_fusion
 clean.slate <- opt$clean_slate
+filter.by   <- opt$filter_by
+threshold   <- opt$threshold
+
+if (!is.na(filter.by)) {
+    if (!(filter.by %in% c("R2", "h2"))) {
+        stop("--filter_by must be either 'R2' or 'h2'.")
+    }
+    if (is.na(threshold) || threshold < 0 || threshold > 1) {
+        stop("--threshold must be a number between 0 and 1.")
+    }
+}
 
 cat("Arguments: model =", model, "| chr =", ifelse(is.na(CHR), "1-22", paste(CHR, collapse = ",")), 
     "| output =", output.dir, output.name, "\n")
@@ -311,6 +326,15 @@ manifest <- paste0("model/", model, "/.manifest") %>%
     filter(chromosome %in% CHR)
 
 cat("Found", nrow(manifest), "protein models for chromosome(s):", paste(CHR, collapse = ", "), "\n")
+
+if (!is.na(filter.by)) {
+    if (!(filter.by %in% colnames(manifest))) {
+        stop(paste0("Column '", filter.by, "' not found in manifest. This pipeline requires v2 (or later) models that include R2 and h2 columns."))
+    }
+    n.before <- nrow(manifest)
+    manifest <- manifest[manifest[[filter.by]] >= threshold & !is.na(manifest[[filter.by]]), ]
+    cat("Filtered by", filter.by, ">=", threshold, ":", n.before, "->", nrow(manifest), "proteins\n")
+}
 
 if (nrow(manifest) == 0) {
     stop(paste0("No protein models found for chromosome(s): ", paste(CHR, collapse = ", "), "."))
