@@ -19,7 +19,7 @@ Download our pre-constructed model and LD matrix files from our 🤗 Hugging Fac
 ```bash
 cd BLISS
 
-# Download model (v2 manifests include R2 and h2 columns required by --filter_by)
+# Download model
 mkdir model && cd model
 wget https://huggingface.co/datasets/chongwulab/BLISS-models/resolve/v2/UKBPPP_EUR.zip
 unzip UKBPPP_EUR.zip
@@ -147,7 +147,7 @@ Rscript BLISS_Association.R \
 | `output_augmented` | logical | Output augmented results with additional annotations | FALSE |
 | `output_twas_fusion` | logical | TWAS-FUSION-style output | FALSE |
 | `clean_slate` | logical | Discard unfinished result and start fresh? | FALSE |
-| `filter_by` | string | Manifest column used to filter proteins before analysis. One of `R2` (cross-validation predictive R²) or `h2` (cis-heritability). Omit to disable filtering. Requires v2 (or later) model files. | None |
+| `filter_by` | string | Manifest column used to filter proteins before analysis. One of `R2` (cross-validation predictive R²) or `h2` (cis-heritability). Omit to disable filtering. | None |
 | `threshold` | numeric | Minimum value (0-1) for the `--filter_by` column. Proteins below this threshold are skipped. | 0 |
 
 ### Output: Protein-trait association results
@@ -272,4 +272,4 @@ Documentation update - Added LD matrix extraction guide, improved FAQ section, a
 Fixed a minor issue where an undefined object occurred in some cases.<br>
 
 - **05-25-2026:**<br>
-Added `--filter_by` and `--threshold` options to filter proteins by predictive R² or cis-heritability before running the analysis. Requires v2 (or later) model files, whose `.manifest` now ships with `R2` and `h2` columns. Older model files remain compatible when these new options are omitted.<br>
+Added `--filter_by` and `--threshold` options to filter proteins by predictive R² or cis-heritability before running the analysis. The `.manifest` files distributed with the models now ship with `R2` and `h2` columns to support this filtering.<br>

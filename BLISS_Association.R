@@ -329,7 +329,7 @@ cat("Found", nrow(manifest), "protein models for chromosome(s):", paste(CHR, col
 
 if (!is.na(filter.by)) {
     if (!(filter.by %in% colnames(manifest))) {
-        stop(paste0("Column '", filter.by, "' not found in manifest. This pipeline requires v2 (or later) models that include R2 and h2 columns."))
+        stop(paste0("Column '", filter.by, "' not found in manifest. Make sure your model files include R2 and h2 columns in the .manifest."))
     }
     n.before <- nrow(manifest)
     manifest <- manifest[manifest[[filter.by]] >= threshold & !is.na(manifest[[filter.by]]), ]
