@@ -283,4 +283,4 @@ Fixed a minor issue where an undefined object occurred in some cases.<br>
 Added `--filter_by` and `--threshold` options to filter proteins by predictive R² or cis-heritability before running the analysis. The `.manifest` files distributed with the models now ship with `R2` and `h2` columns to support this filtering.<br>
 
 - **06-01-2026:**<br>
-Added the drug-target validation benchmark (`BENCHMARK.md`, `code/`, `data/`, `dictionary/`) reproducing the manuscript's comparison of BLISS against MR, colocalization, TWAS, and closest-gene across the 6k and 13k universes.<br>
+Added the drug-target validation benchmark (`BENCHMARK.md`, `code/`, `data/`, `dictionary/`) reproducing the manuscript's comparison of BLISS against MR, colocalization, and TWAS across the 6k and 13k universes.<br>
