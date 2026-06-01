@@ -237,6 +237,12 @@ matrix.LD <- recover_corr_matrix(matrix.LD)
 3. **Column naming:** Verify that input files use exact column names (case-sensitive)
 4. **Sample size:** Provide sample size via `--n` if not available in the N column
 
+## Benchmark: drug-target validation
+
+To reproduce the manuscript's drug-target validation benchmark — comparing BLISS (PWAS) against MR, colocalization, TWAS, and a closest-gene baseline across two evaluation universes (6k approved drugs from Trajanoska et al.; 13k Phase I+ target–indication pairs from Minikel et al.) — see **[BENCHMARK.md](BENCHMARK.md)**.
+
+It documents exactly how the test sets are built and how to run the benchmark. The scripts live in [`code/`](code/) and the small inputs in [`data/`](data/) and [`dictionary/`](dictionary/); the large per-method result objects (`*.RData`, ~1.4 GB) are hosted in a public S3 bucket (download instructions in [BENCHMARK.md](BENCHMARK.md)).
+
 ## Citation
 
 If you find our resources helpful, please cite:
@@ -273,3 +279,6 @@ Fixed a minor issue where an undefined object occurred in some cases.<br>
 
 - **05-25-2026:**<br>
 Added `--filter_by` and `--threshold` options to filter proteins by predictive R² or cis-heritability before running the analysis. The `.manifest` files distributed with the models now ship with `R2` and `h2` columns to support this filtering.<br>
+
+- **06-01-2026:**<br>
+Added the drug-target validation benchmark (`BENCHMARK.md`, `code/`, `data/`, `dictionary/`) reproducing the manuscript's comparison of BLISS against MR, colocalization, TWAS, and closest-gene across the 6k and 13k universes.<br>
