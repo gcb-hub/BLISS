@@ -106,6 +106,7 @@ for f in PWAS MR coloc TWAS; do
 done
 
 # 1. Build all test sets
+mkdir test
 for u in 6k 13k; do for m in PWAS MR coloc TWAS closest; do
   Rscript code/create-test-$u-$m.R; done; done
 
