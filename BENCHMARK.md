@@ -29,45 +29,30 @@ cannot.
 
 ---
 
-## 2. Why 6k and 13k differ structurally
+## 2. Why 6k and 13k are evaluated differently
 
-The two universes use **different test-set constructions** — the key thing to
+The two universes use **different evaluation designs** — the key thing to
 understand:
 
-- **6k — natural background.** A cell is a negative *only if the method actually
-  tested it*; unreachable cells are excluded (so a `LABEL=0` is a genuine
-  "tested but not approved," never "never tested"). `LABEL=1` iff the (gene,
-  disease) is in `universe-6k`. Measures enrichment of approved pairs among all
-  tested cells.
+- **6k — recall against approved drugs.** The 6k contains only approved pairs
+  (no negatives), so the question is *recall*: of the approved rows a method can
+  *answer* (the **denominator**), how many does it call significant (**validated**)?
+  The reported number is the recall N2/N1. No 2×2, no Fisher test.
 
-- **13k — universe-anchored.** The test set is built *from* the universe (one row
-  per reachable (gene, MeSH) pair), with `LABEL = succ_3_a`. Measures
-  discrimination of *approved vs. failed* among pairs that entered the clinic.
+- **13k — enrichment vs. failures.** The test set is built *from* the universe
+  (one row per reachable (gene, MeSH) pair) with `LABEL = succ_3_a`, so it has a
+  real negative class. Scoring builds a 2×2 of significant-vs-`LABEL` and
+  measures discrimination of *approved vs. failed* among pairs that entered the
+  clinic (PPV, fold enrichment, Fisher OR).
 
 ---
 
 ## 3. Pipeline
 
-Two stages per `(universe, method)`. All scripts run **from the project root**
-and need R + `data.table`. Outputs are deterministic (no randomness).
-
-### Stage 1 — build test sets: `create-test-{6k,13k}-{METHOD}.R`
-
-Emits a test ("exam") file `test/test-*.tsv` with columns
-`Target gene name | Disease/MESH | TRAIT | LABEL`, where `TRAIT` is the
-supporting MVP trait codes (used to scope FDR downstream). A cell is included
-only if the method can *reach* it — i.e. it produced a (gene, trait) result
-after each method's standard QC (PWAS/TWAS heritability filter, MR/coloc
-non-error results mapped protein → gene, closest a genome-wide-significant EUR
-locus). These are *scope* filters (what's testable), not the significance calls,
-which come in Stage 2.
-
-### Stage 2 — score: `benchmark-{6k,13k}-{METHOD}.R`
-
-Loads the test file + the method's `dat`, applies the **significance criterion**,
-marks a cell predicted-positive if *any* of its (gene, TRAIT) rows is
-significant, then builds the 2×2 vs. `LABEL` and reports PPV, fold enrichment,
-and Fisher exact OR + p. FDR is computed *within the test-restricted scope*.
+Each universe has its own two-step flow. All scripts run **from the project
+root** and need R + `data.table`; outputs are deterministic (no randomness).
+Both flows share the same per-method **significance criterion** (FDR is computed
+*within the answerable/test-restricted scope*):
 
 | Method | Significant iff |
 |---|---|
@@ -76,6 +61,32 @@ and Fisher exact OR + p. FDR is computed *within the test-restricted scope*.
 | coloc | `H4 >= 0.8` (no FDR) |
 | TWAS | FDR `pvalue < 0.05` |
 | closest | nearest gene of any `P < 5e-8` EUR locus (no FDR) |
+
+### 6k flow — denominator → validated: `create-denom-6k-*` then `validate-6k-*`
+
+1. **`create-denom-6k-{METHOD}.R`** → `test/denom-6k-{METHOD}.tsv`: every
+   `universe-6k` row the method can *answer* — i.e. the row's gene has a
+   QC-passing result with a candidate `TRAIT` whose ontology ID overlaps the
+   row's `Disease indication ID`. Raw universe-row granularity, with the
+   candidate TRAITs attached.
+2. **`validate-6k-{METHOD}.R`** → `test/validated-6k-{METHOD}.tsv` (denominator
+   plus a `validated` flag) and prints the denominator **N1**, the validated
+   count **N2**, and recall **N2/N1**. A row is validated iff any of its
+   candidate (gene, TRAIT) pairs is significant.
+
+`validate-6k-cohorts.R` repeats the PWAS-style validation for additional cohorts
+(deCODE, ARIC, ARIC-AA, UKB-AFR+EUR); it needs those cohort `*.RData` (not in the
+default S3 fetch — see §4).
+
+### 13k flow — test set → enrichment: `create-test-13k-*` then `benchmark-13k-*`
+
+1. **`create-test-13k-{METHOD}.R`** → `test/test-13k-{METHOD}.tsv`
+   (`Target gene name | MESH | TRAIT | LABEL`): one row per reachable (gene,
+   MeSH) universe pair, with `LABEL = succ_3_a`.
+2. **`benchmark-13k-{METHOD}.R`**: applies the significance criterion, marks a
+   cell predicted-positive if *any* of its (gene, TRAIT) rows is significant,
+   builds the 2×2 vs. `LABEL`, and reports PPV, fold enrichment, and Fisher
+   exact OR + p.
 
 ### Headline table — `benchmark-13k-vs-closest.R`
 
@@ -94,25 +105,31 @@ Scores all four methods on the 13k in two views and writes
 
 > **Large files (hosted on S3).** The per-method result objects
 > `result-compiled/{PWAS,MR,coloc,TWAS}.RData` (~1.4 GB total) are too large for
-> git and live in a public S3 bucket. Fetch them with step 0 below. The test
-> sets `test/test-*.tsv` are not stored — they are regenerated by step 1.
+> git and live in a public S3 bucket. Fetch them with step 0 below. The
+> denominator / test sets under `test/` are not stored — they are regenerated by
+> the steps below.
 
 ```bash
 # 0. Fetch the per-method result objects from S3 into result-compiled/
-mkdir -p result-compiled
+mkdir -p result-compiled test
 base=https://bliss-benchmark-data.s3.us-east-2.amazonaws.com
 for f in PWAS MR coloc TWAS; do
   wget -O result-compiled/$f.RData $base/$f.RData
 done
 
-# 1. Build all test sets
-mkdir test
-for u in 6k 13k; do for m in PWAS MR coloc TWAS closest; do
-  Rscript code/create-test-$u-$m.R; done; done
+# 1. 6k: build denominators, then validate (prints N1, N2, recall)
+for m in PWAS MR coloc TWAS closest; do
+  Rscript code/create-denom-6k-$m.R
+  Rscript code/validate-6k-$m.R
+done
+# optional: PWAS recall across extra cohorts (needs cohort *.RData, not on S3)
+# Rscript code/validate-6k-cohorts.R
 
-# 2. Per-method benchmarks (printed tables)
-for u in 6k 13k; do for m in PWAS MR coloc TWAS closest; do
-  Rscript code/benchmark-$u-$m.R; done; done
+# 2. 13k: build test sets, then score
+for m in PWAS MR coloc TWAS closest; do
+  Rscript code/create-test-13k-$m.R
+  Rscript code/benchmark-13k-$m.R
+done
 
 # 3. Headline 13k table + hit lists
 Rscript code/benchmark-13k-vs-closest.R
@@ -128,4 +145,4 @@ Rscript code/benchmark-13k-hits.R
 | `dictionary/lookup-Olink.tsv` | protein (OlinkID) → gene (HGNC) — MR & coloc — in repo |
 | `data/loci-from-MVP{,-corrected}.csv` | MVP loci for closest-gene (6k / 13k) — in repo |
 | `result-compiled/{PWAS,MR,coloc,TWAS}.RData` | per-method results (`dat`) — **on S3** (§4) |
-| `test/test-*.tsv` | generated test sets — **regenerated** by step 1 (§4) |
+| `test/{denom,validated}-6k-*.tsv`, `test/test-13k-*.tsv` | generated by the pipeline (§3–4) |
