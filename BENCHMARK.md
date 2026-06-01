@@ -5,7 +5,7 @@ universes — **6k** (Trajanoska) and **13k** (Minikel) — across four omics
 methods plus a closest-gene baseline.
 
 > **"BLISS" = the PWAS method** (cis-pQTL → protein → outcome regression,
-> FDR < 0.05 on `p.a.c`) — *not* the union of all methods. The four omics rows
+> FDR < 0.05) — *not* the union of all methods. The four omics rows
 > are BLISS / MR / Colocalization / TWAS.
 
 ---
@@ -19,16 +19,13 @@ many are real drug-target–indication pairs? That "real" set is the **universe*
 |---|---|---|
 | File | `data/universe-6k.tsv` | `data/universe-13k-old.tsv` |
 | Source | **Trajanoska et al., *Nature* 2023** | **Minikel et al.** (ref 58) |
-| Contents | **approved drugs only** (6,849 trios) | Phase I+ T–I pairs, **incl. failures** (13,022) |
-| Disease key | `Disease indication ID` (EFO/MONDO) | `indication_mesh_id` (one MeSH) |
+| Contents | **approved drugs only** | Phase I+ T–I pairs, **incl. failures** |
+| Disease key | `Disease indication ID` (EFO/MONDO) | `indication_mesh_id` (MeSH) |
 | Positive label | membership in the universe | the `succ_3_a` flag (reached approval) |
 
-The 6k is Trajanoska's table plus 160 manually curated 2023–2026 FDA approvals
-(rows 6691–6850, CHEMBL ID = `NA`). The 13k is used as-is — its failures give a
-real negative class the all-approvals 6k cannot.
-
-> ⚠️ The old manuscript wrongly attributed 6k to Minikel. Correct: **6k =
-> Trajanoska, 13k = Minikel**.
+The 6k is Trajanoska's table plus manually curated 2023–2026 FDA approvals. The
+13k is used as-is — its failures give a real negative class the all-approvals 6k
+cannot.
 
 ---
 
@@ -59,17 +56,11 @@ and need R + `data.table`. Outputs are deterministic (no randomness).
 Emits a test ("exam") file `test/test-*.tsv` with columns
 `Target gene name | Disease/MESH | TRAIT | LABEL`, where `TRAIT` is the
 supporting MVP trait codes (used to scope FDR downstream). A cell is included
-only if the method can *reach* it:
-
-| Method | Reachable when | gene source |
-|---|---|---|
-| PWAS / BLISS | `r2.c >= 0.01` | `ID.inner` |
-| MR | `exception ∈ {blank, ONLY_ONE_IV, SUMSTAT_NO_SIGNAL}` | protein → gene via Olink |
-| coloc | not `exception ∈ {NO_OVERLAP, PQTL_EMPTY, PQTL_NO_SIGNAL}` | protein → gene via Olink |
-| TWAS | `pred_perf_r2 >= 0.01` | `gene_name` |
-| closest | EUR loci, `P < 5e-8`, non-empty nearest gene | `Lead Variant Gene (Nearest)` |
-
-These are *scope* filters (what's testable), not the significance calls.
+only if the method can *reach* it — i.e. it produced a (gene, trait) result
+after each method's standard QC (PWAS/TWAS heritability filter, MR/coloc
+non-error results mapped protein → gene, closest a genome-wide-significant EUR
+locus). These are *scope* filters (what's testable), not the significance calls,
+which come in Stage 2.
 
 ### Stage 2 — score: `benchmark-{6k,13k}-{METHOD}.R`
 
