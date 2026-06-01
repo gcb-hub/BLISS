@@ -1,0 +1,4 @@
+# Large benchmark artifacts hosted on S3 (see BENCHMARK.md §4)
+result-compiled/
+*.RData
+test/
