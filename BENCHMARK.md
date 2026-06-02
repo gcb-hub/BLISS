@@ -115,6 +115,7 @@ for f in PWAS MR coloc TWAS; do
 done
 
 # 1. 6k: build denominators, then validate (prints N1, N2, recall)
+Rscript -e 'install.packages(c("data.table", "jsonlite"), repos="https://cloud.r-project.org")'
 for m in PWAS MR coloc TWAS closest; do
   Rscript code/create-denom-6k-$m.R
   Rscript code/validate-6k-$m.R
