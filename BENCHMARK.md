@@ -119,8 +119,6 @@ for m in PWAS MR coloc TWAS closest; do
   Rscript code/create-denom-6k-$m.R
   Rscript code/validate-6k-$m.R
 done
-# optional: PWAS recall across extra cohorts (needs cohort *.RData, not on S3)
-# Rscript code/validate-6k-cohorts.R
 
 # 2. 13k: build test sets, then score
 for m in PWAS MR coloc TWAS closest; do
