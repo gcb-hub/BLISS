@@ -28,12 +28,11 @@ suppressPackageStartupMessages({
 # -----------------------------------------------------------------------------
 # Load inputs
 # -----------------------------------------------------------------------------
-loci <- fread("data/loci-from-MVP.csv")
-if (colnames(loci)[1] != "Trait") setnames(loci, 1, "Trait")
+loci <- fread("data/loci-from-MVP-corrected.csv")
 loci <- loci[nzchar(`Lead Variant Gene (Nearest)`) &
              !is.na(`Lead Variant Gene (Nearest)`)]
 loci <- loci[nzchar(Trait) & !is.na(Trait)]
-loci[, p.num := suppressWarnings(as.numeric(`P-value`))]
+loci[, p.num := suppressWarnings(as.numeric(`P-Value`))]
 loci <- loci[!is.na(p.num) & p.num < 5e-8]
 
 universe <- fread("data/universe-6k.tsv",     sep = "\t", quote = "")

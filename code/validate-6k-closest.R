@@ -10,7 +10,7 @@
 #
 # Pipeline:
 #   1. Load test/denom-6k-closest.tsv (from create-denom-6k-closest.R).
-#   2. Load data/loci-from-MVP.csv and synthesize `dat` of MVP (gene, TRAIT)
+#   2. Load data/loci-from-MVP-corrected.csv and synthesize `dat` of MVP (gene, TRAIT)
 #      pairs (drop empty/NA Lead Variant Gene (Nearest) and Trait).
 #   3. Shrink dat to (gene, TRAIT) pairs in the denominator. No threshold:
 #      every surviving pair is a hit (closest has no p-value).
@@ -34,10 +34,9 @@ suppressPackageStartupMessages({
 # -----------------------------------------------------------------------------
 denom <- fread("test/denom-6k-closest.tsv", sep = "\t", quote = "")
 
-loci <- fread("data/loci-from-MVP.csv")
-if (colnames(loci)[1] != "Trait") setnames(loci, 1, "Trait")
+loci <- fread("data/loci-from-MVP-corrected.csv")
 
-loci[, p.num := suppressWarnings(as.numeric(`P-value`))]
+loci[, p.num := suppressWarnings(as.numeric(`P-Value`))]
 dat <- unique(loci[
   nzchar(`Lead Variant Gene (Nearest)`) &
   !is.na(`Lead Variant Gene (Nearest)`) &
