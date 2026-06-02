@@ -14,7 +14,7 @@ many are real drug-target–indication pairs? That "real" set is the **universe*
 | | **6k** | **13k** |
 |---|---|---|
 | File | `data/universe-6k.tsv` | `data/universe-13k-old.tsv` |
-| Source | **Trajanoska et al., *Nature* 2023** | **Minikel et al.** (ref 58) |
+| Source | [Trajanoska et al., *Nature* 2023](https://www.nature.com/articles/s41586-023-06388-8) | [Minikel et al., *Nature* 2024](https://www.nature.com/articles/s41586-024-07316-0) |
 | Contents | **approved drugs only** | Phase I+ T–I pairs, **incl. failures** |
 | Disease key | `Disease indication ID` (EFO/MONDO) | `indication_mesh_id` (MeSH) |
 | Positive label | membership in the universe | the `succ_3_a` flag (reached approval) |
