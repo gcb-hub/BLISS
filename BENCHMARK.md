@@ -107,6 +107,7 @@ Scores all four methods on the 13k in two views and writes
 
 ```bash
 # 0. Fetch the per-method result objects from S3 into result-compiled/
+cd BLISS
 mkdir -p result-compiled test
 base=https://bliss-benchmark-data.s3.us-east-2.amazonaws.com
 for f in PWAS MR coloc TWAS; do
