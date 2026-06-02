@@ -4,10 +4,6 @@ How the benchmark data was built and how to reproduce it, for both evaluation
 universes — **6k** (Trajanoska) and **13k** (Minikel) — across four omics
 methods plus a closest-gene baseline.
 
-> **"BLISS" = the PWAS method** (*cis*-pQTL → protein → outcome regression,
-> FDR < 0.05) — *not* the union of all methods. The four omics rows
-> are BLISS / MR / Colocalization / TWAS.
-
 ---
 
 ## 1. The two universes (truth sets)
