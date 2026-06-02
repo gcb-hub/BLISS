@@ -19,7 +19,7 @@ many are real drug-target–indication pairs? That "real" set is the **universe*
 | Disease key | `Disease indication ID` (EFO/MONDO) | `indication_mesh_id` (MeSH) |
 | Positive label | membership in the universe | the `succ_3_a` flag (reached approval) |
 
-The 6k is Trajanoska's table plus manually curated 2023–2026 FDA approvals. The
+The 6k is Trajanoska's table plus manually curated recent FDA approvals. The
 13k is used as-is — its failures give a real negative class the all-approvals 6k
 cannot.
 
