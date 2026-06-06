@@ -20,7 +20,7 @@ many are real drug-target–indication pairs? That "real" set is the **universe*
 | Positive label | membership in the universe | the `succ_3_a` flag (reached approval) |
 
 The 6k is Trajanoska's table plus manually curated recent FDA approvals. The
-13k is used as-is — its failures give a real negative class the all-approvals 6k
+13k is used as-is. Its failures give a real negative class the all-approvals 6k
 cannot.
 
 ---
