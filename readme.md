@@ -181,11 +181,11 @@ We provide protein expression imputation models across various platforms and anc
 | Model Name | Platform | Method | Ancestry | Training Sample Size | Number of proteins | Number of proteins with _cis_-h<sup>2</sup> > 0.01 |
 |------------|----------|---------|----------|---------------------|--------------------|--------------------------------------------|
 | UKBPPP_EUR | Olink | BLISS | European | 49,341 | 2,808 | 1,407 |
-| UKBPPP_AFR | Olink | BLISS | African | 1,181 | 2,790 | 916 |
+| UKBPPP_AFR | Olink | BLISS | African | 1,181 | 2,797 | 916 |
 | UKBPPP_ASN | Olink | BLISS | Asian | 923 | 2,791 | 996 |
-| deCODE | SomaScan | BLISS | European (Icelandic) | 35,892 | 4,711 | 1,183 |
-| ARIC_EA | SomaScan | BLISS | European American | 7,213 | 4,439 | 1,214 |
-| ARIC_AA | SomaScan | BLISS | African American | 1,181 | 4,435 | 1,352 |
+| deCODE | SomaScan | BLISS | European (Icelandic) | 35,892 | 4,710 | 1,183 |
+| ARIC_EA | SomaScan | BLISS | European American | 7,213 | 4,435 | 1,214 |
+| ARIC_AA | SomaScan | BLISS | African American | 1,181 | 4,431 | 1,352 |
 
 
 **Recommendation:** Although we are providing you with results for all the available proteins, we recommend using models **with estimated heritability exceeding 0.01 as analyzed in our manuscript**. This can be done at the command line with `--filter_by h2 --threshold 0.01`.
