@@ -4,7 +4,7 @@ We introduced **Biomarker expression Level Imputation using Summary-level Statis
 
 > 📊 **Drug-target validation benchmarks:** reproduce our comparison of BLISS against MR, colocalization, and TWAS — code, data, and instructions in **[BENCHMARK.md](BENCHMARK.md)**.
 
-<img src="illustration-new.png" alt="BLISS-illustration" style="width: 100%;">
+<img src="illustration-new.svg" alt="BLISS-illustration" style="width: 100%;">
 
 ## Installation
 
