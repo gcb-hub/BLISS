@@ -149,7 +149,7 @@ Rscript BLISS_Association.R \
 | `output_augmented` | logical | Output augmented results with additional annotations | FALSE |
 | `output_twas_fusion` | logical | TWAS-FUSION-style output | FALSE |
 | `clean_slate` | logical | Discard unfinished result and start fresh? | FALSE |
-| `filter_by` | string | Manifest column used to filter proteins before analysis. One of `R2` (cross-validation predictive R²) or `h2` (cis-heritability). Omit to disable filtering. | None |
+| `filter_by` | string | Manifest column used to filter proteins before analysis. One of `R2` (cross-validation predictive R²; available for all models, recommended) or `h2` (_cis_-heritability from published sources; `NA` for proteins without a published estimate — `NA` proteins are skipped when this filter is used). Omit to disable filtering. | None |
 | `threshold` | numeric | Minimum value (0-1) for the `--filter_by` column. Proteins below this threshold are skipped. | 0 |
 
 ### Output: Protein-trait association results
@@ -178,17 +178,19 @@ When `--output_augmented TRUE` is specified, additional columns are included:
 
 We provide protein expression imputation models across various platforms and ancestries:
 
-| Model Name | Platform | Method | Ancestry | Training Sample Size | Number of proteins | Number of proteins with _cis_-h<sup>2</sup> > 0.01 |
-|------------|----------|---------|----------|---------------------|--------------------|--------------------------------------------|
-| UKBPPP_EUR | Olink | BLISS | European | 49,341 | 2,808 | 1,407 |
-| UKBPPP_AFR | Olink | BLISS | African | 1,181 | 2,797 | 916 |
-| UKBPPP_ASN | Olink | BLISS | Asian | 923 | 2,791 | 996 |
-| deCODE | SomaScan | BLISS | European (Icelandic) | 35,892 | 4,710 | 1,183 |
-| ARIC_EA | SomaScan | BLISS | European American | 7,213 | 4,435 | 1,214 |
-| ARIC_AA | SomaScan | BLISS | African American | 1,181 | 4,431 | 1,352 |
+| Model Name | Platform | Method | Ancestry | Training Sample Size | Number of proteins | Proteins with R<sup>2</sup> > 0.01 | Proteins with _cis_-h<sup>2</sup> > 0.01 † |
+|------------|----------|---------|----------|---------------------|--------------------|------------------------------------|--------------------------------------------|
+| UKBPPP_EUR | Olink | BLISS | European | 49,341 | 2,802 | 1,284 | 1,401 |
+| UKBPPP_AFR | Olink | BLISS | African | 1,181 | 2,790 | 916 | NA |
+| UKBPPP_ASN | Olink | BLISS | Asian | 923 | 2,791 | 996 | NA |
+| deCODE | SomaScan | BLISS | European (Icelandic) | 35,892 | 4,682 | 1,223 | 1,173 |
+| ARIC_EA | SomaScan | BLISS | European American | 7,213 | 4,419 | 1,283 | 1,207 |
+| ARIC_AA | SomaScan | BLISS | African American | 1,871 | 4,414 | 1,677 | 1,345 |
 
+† _cis_-heritability estimates are compiled from published sources (e.g., Sun et al., _Nature_ 2023 for UKB-PPP) rather than computed by BLISS, and are unavailable (`NA` in the manifest `h2` column) for proteins without a published estimate — including all UKBPPP_AFR and UKBPPP_ASN proteins. An `NA` reflects missing external data, not a model that failed the threshold. Counts in this column are among proteins with an available estimate.
 
-**Recommendation:** Although we are providing you with results for all the available proteins, we recommend using models **with estimated heritability exceeding 0.01 as analyzed in our manuscript**. This can be done at the command line with `--filter_by h2 --threshold 0.01`.
+**Recommendation:** Although results are provided for all available proteins, we recommend filtering out poorly predicted models before analysis. The most robust way is to use cross-validated predictive R², which is available for every model in every panel: `--filter_by R2 --threshold 0.01`. Filtering by _cis_-heritability (`--filter_by h2 --threshold 0.01`), as analyzed in our manuscript, is also supported, but note that `h2` is `NA` for 17–100% of proteins depending on the panel (see table footnote above); proteins with `NA` are skipped by the filter. A small number of SomaScan models (7 across all panels, e.g., MSMB, MICA, BTN3A3) show R² > 1 due to instability of the summary-statistic R² approximation for proteins with exceptionally strong _cis_ signals — we suggest interpreting these models with caution.
+
 
 ## Advanced usage
 
@@ -229,6 +231,10 @@ A: Load the model file of interest and use the ``recover_corr_matrix`` function 
 load("PROTEIN_OF_INTEREST.RData")
 matrix.LD <- recover_corr_matrix(matrix.LD)
 ```
+
+**Q: Why do the `.manifest` files contain NA values in the `h2` column?**
+
+A: The `h2` (_cis_-heritability) values are compiled from published external sources, not computed during BLISS model training. `NA` means no published estimate could be matched for that protein in that cohort — for example, no heritability estimates were published for the UKB-PPP African- and Asian-ancestry subsets, so `h2` is `NA` for all UKBPPP_AFR and UKBPPP_ASN models. An `NA` says nothing about model quality; those models were trained identically to all others. For filtering, use the `R2` column instead, which is computed directly by BLISS and available for every model (`--filter_by R2 --threshold 0.01`).
 
 ## Troubleshooting
 
