@@ -89,12 +89,12 @@ APSS <- function(directory.working, filename, auto = FALSE, do.return = FALSE, B
     try.snp <- c("snp", "markername", "snpid", "rs", "rsid", "rs_number", "snps","rsids")
     header.inner[header.inner %in% try.snp] <- "SNP"
 
-    # A1
-    try.a1 <- c("a1", "allele1", "allele_1", "nea", "non_effect_allele", "reference_allele", "inc_allele", "ref", "a1lele1", "al1ele1")
+    # A1: the effect allele, the allele the Z-score (or BETA) refers to (readme: "A1 - effect allele")
+    try.a1 <- c("a1", "allele1", "allele_1", "effect_allele", "ea", "alt", "inc_allele", "a1lele1", "al1ele1")
     header.inner[header.inner %in% try.a1] <- "A1"
 
-    # A2
-    try.a2 <- c("a2", "allele2", "allele_2", "other_allele",  "dec_allele", "alt", "a0","effect_allele","ea")
+    # A2: the other (non-effect) allele
+    try.a2 <- c("a2", "allele2", "allele_2", "other_allele", "nea", "non_effect_allele", "reference_allele", "ref", "dec_allele", "a0")
     header.inner[header.inner %in% try.a2] <- "A2"
 
     # Z-score
