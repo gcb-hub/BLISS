@@ -191,6 +191,17 @@ We provide protein expression imputation models across various platforms and anc
 
 **Recommendation:** Although results are provided for all available proteins, we recommend filtering out poorly predicted models before analysis. The most robust way is to use cross-validated predictive R², which is available for every model in every panel: `--filter_by R2 --threshold 0.01`. Filtering by _cis_-heritability (`--filter_by h2 --threshold 0.01`), as analyzed in our manuscript, is also supported, but note that `h2` is `NA` for 17–100% of proteins depending on the panel (see table footnote above); proteins with `NA` are skipped by the filter. A small number of SomaScan models (7 across all panels, e.g., MSMB, MICA, BTN3A3) show R² > 1 due to instability of the summary-statistic R² approximation for proteins with exceptionally strong _cis_ signals — we suggest interpreting these models with caution.
 
+### Linking models to assays
+
+Models are named by gene symbol (the `protein` column of each `.manifest`). Two lookup tables link them to the assays they were trained on:
+
+- **UKBPPP models:** [`dictionary/lookup-Olink.tsv`](dictionary/lookup-Olink.tsv). Join the manifest `protein` column to the `Assay` column to get the OlinkID and UniProt ID.
+- **ARIC_EA models:** [`dictionary/lookup-ARIC_EA.tsv`](dictionary/lookup-ARIC_EA.tsv). One row per model (`model` = manifest `protein`), giving the SomaScan aptamer (`SeqId`) the model was trained on, its UniProt ID, gene symbol and TSS (GRCh38). The SeqId annotation comes from the ARIC PWAS release (Zhang et al., _Nature Genetics_ 2022). Every row was verified by checking that the model's training summary statistics are identical to that aptamer's published ARIC summary statistics.
+
+Two points for ARIC_EA, both flagged in the lookup's `note` column:
+- 203 genes are measured by more than one aptamer, but each has a single model, trained on one aptamer only (the last in SeqId order, not selected on performance). The other aptamers are listed in `other_aptamers_for_gene`.
+- For 49 of these models, the manifest `h2` is the _cis_-heritability of another aptamer of the same gene (the highest among them), not of the aptamer the model was trained on; 26 of them pass `--filter_by h2 --threshold 0.01` only because of this. If you filter on heritability, use `cis_h2_this_SeqId` from the lookup instead, or filter on `R2`, which is computed for each model itself.
+
 
 ## Advanced usage
 
@@ -290,3 +301,6 @@ Added `--filter_by` and `--threshold` options to filter proteins by predictive R
 
 - **06-01-2026:**<br>
 Added the drug-target validation benchmark (`BENCHMARK.md`, `code/`, `data/`, `dictionary/`) reproducing the manuscript's comparison of BLISS against MR, colocalization, and TWAS across the 6k and 13k universes.<br>
+
+- **11-24-2026:**<br>
+Added `dictionary/lookup-ARIC_EA.tsv`, linking each ARIC_EA model to the SomaScan aptamer (SeqId) it was trained on, with UniProt ID and gene symbol. Documented in [Linking models to assays](#linking-models-to-assays).<br>
